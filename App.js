@@ -11,7 +11,7 @@ const Stack = createStackNavigator();
 export default function App() {
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="StartPage">
+      <Stack.Navigator initialRouteName="OneWaySearching">
         <Stack.Screen
           name="StartPage"
           component={StartPage}
@@ -22,11 +22,11 @@ export default function App() {
           component={RoundTripSearching}
           options={{ headerShown: false }}
         />
-        {/* <Stack.Screen
+        <Stack.Screen
           name="OneWaySearching"
           component={OneWaySearching}
           options={{ headerShown: false }} 
-        /> */}
+        />
       </Stack.Navigator>
       <StatusBar style="auto" />
     </NavigationContainer>

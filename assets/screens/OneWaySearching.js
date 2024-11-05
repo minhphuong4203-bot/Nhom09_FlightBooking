@@ -1,9 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import FlightSearching from './FlightSearching';
 
 const OneWaySearching = ({ navigation }) => {
+    const [from, setFrom] = useState('');
+    const [to, setTo] = useState('');
+
+    const handleSwap = () => {
+        const temp = from;
+        setFrom(to);
+        setTo(temp);
+    };
+
     return (
         <FlightSearching navigation={navigation}>
             <View style={styles.searchContainer}>
@@ -13,16 +22,29 @@ const OneWaySearching = ({ navigation }) => {
                         style={styles.searchInput}
                         placeholder="From"
                         placeholderTextColor="#9095a0"
+                        value={from}
+                        onChangeText={setFrom}
                     />
                 </View>
+
+                {/* Swap Icon with Background */}
+                <TouchableOpacity onPress={handleSwap} style={styles.swapContainer}>
+                    <View style={styles.swapBackground}>
+                        <Icon name="swap-vertical" size={24} color="#000" />
+                    </View>
+                </TouchableOpacity>
+
                 <View style={styles.searchInputContainer}>
                     <Image source={require('../images/Icon/arrivals.png')} style={styles.airplaneImg} />
                     <TextInput
                         style={styles.searchInput}
                         placeholder="To"
                         placeholderTextColor="#9095a0"
+                        value={to}
+                        onChangeText={setTo}
                     />
                 </View>
+
                 <View style={styles.dateContainer}>
                     <View style={styles.dateItem}>
                         <Icon name="calendar" size={16} color="#9095a0" style={styles.dateIcon} />
@@ -51,6 +73,7 @@ const OneWaySearching = ({ navigation }) => {
 
 const styles = StyleSheet.create({
     searchContainer: {
+        position: 'relative',
         padding: 16,
         paddingBottom: 80,
         borderTopWidth: 1,
@@ -149,6 +172,28 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: 'bold',
         textAlign: 'center',
+    },
+    swapContainer: {
+        position: 'absolute',
+        justifyContent: 'center',
+        alignItems: 'center',
+        top: 50,  // Adjust this to position correctly
+        left: '95%', // Center horizontally
+        marginLeft: -35, // Adjust based on icon size
+        zIndex: 1, // Ensure it's on top
+
+    },
+    swapBackground: {
+        backgroundColor: '#f3f4f6',
+        borderRadius: 25,
+        padding: 10, // Padding around the icon
+        elevation: 3, // Shadow effect on Android
+        shadowColor: '#000', // Shadow color for iOS
+        shadowOffset: { width: 0, height: 2 }, // Shadow offset for iOS
+        shadowOpacity: 0.3, // Shadow opacity for iOS
+        shadowRadius: 4, // Shadow radius for iOS
+        borderColor: '#fff', // Border color
+        borderWidth: 1, // Border width
     },
 });
 

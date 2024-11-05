@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Text } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 
 const FlightSearching = ({ navigation, children }) => {
-    const [selectedTab, setSelectedTab] = useState('Round-trip');
+    // Change default selected tab to 'One-way'
+    const [selectedTab, setSelectedTab] = useState('One-way');
 
     const handleTabPress = (tab) => {
         setSelectedTab(tab);
