@@ -1,34 +1,11 @@
 import React from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Image, SafeAreaView } from 'react-native';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import FlightSearching from './FlightSearching';
 
-const RoundTripSearching = ({ navigation }) => {
+const OneWaySearching = ({ navigation }) => {
     return (
-        <SafeAreaView style={styles.container}>
-            <View style={styles.header}>
-                <TouchableOpacity onPress={() => navigation.goBack()}>
-                    <Icon name="close" size={24} color="#000" />
-                </TouchableOpacity>
-                <Text style={styles.headerTitle}>Flight</Text>
-                <View style={styles.headerRight}>
-                    <TouchableOpacity>
-                        <Icon name="filter" size={24} color="#000" />
-                    </TouchableOpacity>
-                </View>
-            </View>
-
-            <View style={styles.tabContainer}>
-                <TouchableOpacity style={[styles.tabItem, styles.activeTab]}>
-                    <Text style={[styles.tabText, styles.activeTabText]}>Round-trip</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.tabItem}>
-                    <Text style={styles.tabText}>One-way</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.tabItem}>
-                    <Text style={styles.tabText}>Multi-city</Text>
-                </TouchableOpacity>
-            </View>
-
+        <FlightSearching navigation={navigation}>
             <View style={styles.searchContainer}>
                 <View style={styles.searchInputContainer}>
                     <Image source={require('../images/Icon/airplane.png')} style={styles.airplaneImg} />
@@ -51,13 +28,8 @@ const RoundTripSearching = ({ navigation }) => {
                         <Icon name="calendar" size={16} color="#9095a0" style={styles.dateIcon} />
                         <Text style={styles.dateLabel}>Fri, Jul 14</Text>
                     </View>
-                    <View style={styles.dateItem}>
-                        <Icon name="calendar" size={16} color="#9095a0" style={styles.dateIcon} />
-                        <Text style={styles.dateLabel}>Fri, Jul 14</Text>
-                    </View>
                 </View>
 
-                {/* Ô chọn gộp chung cho Traveller và Economy với icon */}
                 <TouchableOpacity style={styles.travelerContainer}>
                     <View style={styles.travelerContent}>
                         <Icon name="person" size={16} color="#9095a0" style={styles.travelerIcon} />
@@ -66,65 +38,21 @@ const RoundTripSearching = ({ navigation }) => {
                         <Icon name="airplane" size={16} color="#9095a0" style={styles.travelerIcon} />
                         <Text style={styles.travelerLabel}>Economy</Text>
                     </View>
-                    <Icon name="chevron-down" size={16} color="#9095a0" style={{marginLeft: 180}} />
+                    <Icon name="chevron-down" size={16} color="#9095a0" style={{ marginLeft: 180 }} />
                 </TouchableOpacity>
             </View>
 
-            {/* Nút Search cố định ở cuối màn hình */}
             <TouchableOpacity style={styles.searchButton}>
                 <Text style={styles.searchButtonText}>Search flights</Text>
             </TouchableOpacity>
-        </SafeAreaView>
+        </FlightSearching>
     );
 };
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#fff',
-        paddingTop: 32,
-    },
-    header: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingHorizontal: 16,
-        paddingVertical: 12,
-    },
-    headerTitle: {
-        fontSize: 18,
-        fontWeight: 'bold',
-    },
-    headerRight: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    tabContainer: {
-        flexDirection: 'row',
-        justifyContent: 'center',
-        marginVertical: 16,
-    },
-    tabItem: {
-        paddingHorizontal: 16,
-        paddingVertical: 8,
-        borderRadius: 8,
-        marginHorizontal: 4,
-    },
-    activeTab: {
-        borderBottomWidth: 2,
-        borderBottomColor: '#000',
-    },
-    tabText: {
-        fontSize: 16,
-        color: '#9095a0',
-    },
-    activeTabText: {
-        color: '#000',
-        fontWeight: 'bold',
-    },
     searchContainer: {
         padding: 16,
-        paddingBottom: 80, // Thêm khoảng trống để tránh bị che bởi nút Search
+        paddingBottom: 80,
         borderTopWidth: 1,
         borderTopColor: '#f0f0f0',
     },
@@ -165,7 +93,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: '#ccc',
         borderRadius: 8,
-        width: '48%',
+        width: '100%',
         height: 54,
         backgroundColor: '#f3f4f6',
     },
@@ -179,7 +107,6 @@ const styles = StyleSheet.create({
     travelerContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        // justifyContent: 'space-between',
         borderTopWidth: 1,
         borderBottomWidth: 1,
         borderColor: '#ccc',
@@ -191,7 +118,6 @@ const styles = StyleSheet.create({
         marginLeft: -16,
         marginTop: 20,
     },
-
     travelerContent: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -203,7 +129,6 @@ const styles = StyleSheet.create({
     travelerLabel: {
         fontSize: 14,
         color: '#767a81',
-
     },
     dotSeparator: {
         fontSize: 14,
@@ -214,7 +139,6 @@ const styles = StyleSheet.create({
         position: 'absolute',
         bottom: 50,
         left: 20,
-        // right: 0,
         backgroundColor: '#00bdd6',
         paddingVertical: 14,
         borderRadius: 8,
@@ -228,4 +152,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default RoundTripSearching;
+export default OneWaySearching;
