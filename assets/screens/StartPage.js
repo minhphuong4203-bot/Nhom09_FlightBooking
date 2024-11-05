@@ -29,7 +29,7 @@ const data = [
     }
 ];
 
-const FlightBookingScreen = ({ navigation }) => {
+const StartScreen = ({ navigation }) => {
     const [searchText, setSearchText] = useState('');
 
     const filteredDestinations = data.filter((destination) =>
@@ -258,4 +258,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default FlightBookingScreen;
+export default StartScreen;
