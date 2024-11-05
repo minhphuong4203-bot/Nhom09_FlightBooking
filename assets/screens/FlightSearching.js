@@ -1,14 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, TouchableOpacity, Text } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 
-const FlightSearching = ({ navigation, children }) => {
-    // Change default selected tab to 'One-way'
-    const [selectedTab, setSelectedTab] = useState('One-way');
+const FlightSearching = ({ navigation, children, defaultTab }) => {
+    const [selectedTab, setSelectedTab] = useState(defaultTab || 'One-way');
 
     const handleTabPress = (tab) => {
         setSelectedTab(tab);
     };
+
+    useEffect(() => {
+        // Set the selected tab based on the prop when the component mounts
+        setSelectedTab(defaultTab);
+    }, [defaultTab]);
 
     return (
         <View style={styles.container}>

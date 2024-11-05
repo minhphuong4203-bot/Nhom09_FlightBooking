@@ -103,9 +103,10 @@ const styles = StyleSheet.create({
     },
     dateIcon: {
         marginRight: 8,
+        fontSize: 16,
     },
     dateLabel: {
-        fontSize: 14,
+        fontSize: 16,
         color: '#9095a0',
     },
     travelerContainer: {
