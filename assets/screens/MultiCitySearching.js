@@ -164,7 +164,7 @@ const styles = StyleSheet.create({
     dateIcon: {
         marginRight: 8,
         fontWeight:'700',
-        fontSize: 20,
+        fontSize: 16,
 
     },
     dateLabel: {

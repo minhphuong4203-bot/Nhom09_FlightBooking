@@ -10,8 +10,7 @@ const FlightSearching = ({ navigation, children, defaultTab }) => {
     };
 
     useEffect(() => {
-        // Set the selected tab based on the prop when the component mounts
-        setSelectedTab(defaultTab);
+        setSelectedTab(defaultTab); // Update selected tab when defaultTab changes
     }, [defaultTab]);
 
     return (

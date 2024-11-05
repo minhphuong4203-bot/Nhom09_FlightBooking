@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, FlatList, StyleSheet, TouchableOpacity, Image, ScrollView, SafeAreaView } from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons'; // Import the icon library
+import { View, Text, TextInput, FlatList, StyleSheet, TouchableOpacity, Image, SafeAreaView } from 'react-native';
+import Icon from 'react-native-vector-icons/Ionicons';
 
 const data = [
     {
@@ -32,12 +32,16 @@ const data = [
 const StartScreen = ({ navigation }) => {
     const [searchText, setSearchText] = useState('');
 
-    const filteredDestinations = data.filter((destination) =>
+    const filteredDestinations = data.filter(destination =>
         destination.name.toLowerCase().includes(searchText.toLowerCase())
     );
 
     const handleDestinationPress = (destination) => {
         navigation.navigate('DestinationDetails', { destination });
+    };
+
+    const handleSearchPress = () => {
+        navigation.navigate('RoundTripSearching', { selectedTab: 'Round-trip' });
     };
 
     const renderDestinationItem = ({ item }) => (
@@ -63,7 +67,7 @@ const StartScreen = ({ navigation }) => {
                         <Text style={styles.headerUserText}>A</Text>
                     </TouchableOpacity>
                 </View>
-                <View style={styles.searchContainer}>
+                <TouchableOpacity style={styles.searchContainer} onPress={handleSearchPress}>
                     <View style={styles.searchInputContainer}>
                         <Icon name="search" size={16} color="#9095a0" style={styles.searchIcon} />
                         <TextInput
@@ -77,7 +81,7 @@ const StartScreen = ({ navigation }) => {
                             returnKeyType="search"
                         />
                     </View>
-                </View>
+                </TouchableOpacity>
                 <Text style={styles.sectionTitle}>The best cities for you</Text>
                 <FlatList
                     data={filteredDestinations}
@@ -91,11 +95,6 @@ const StartScreen = ({ navigation }) => {
                     <Text style={styles.sectionTitle}>Explore Destinations</Text>
                     <View style={styles.exploredestinationsImageContainer}>
                         <Image source={require('../images/Flight/Flighing.png')} style={styles.exploredestinationsImage} />
-                        <View style={styles.exploredestinationsTextContainer}>
-                            {/* Uncomment below if needed */}
-                            {/* <Text style={styles.exploredestinationsText}>Explore destinations</Text> */}
-                            {/* <Icon name="arrow-forward-outline" size={24} color="#00bdd6" /> */}
-                        </View>
                     </View>
                 </View>
             </View>
@@ -225,19 +224,6 @@ const styles = StyleSheet.create({
         width: '100%',
         height: 200,
         borderRadius: 12,
-    },
-    exploredestinationsTextContainer: {
-        position: 'absolute',
-        bottom: 16,
-        left: 16,
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    exploredestinationsText: {
-        color: 'white',
-        fontSize: 18,
-        fontWeight: 'bold',
-        marginRight: 8,
     },
     bottomNavigation: {
         flexDirection: 'row',

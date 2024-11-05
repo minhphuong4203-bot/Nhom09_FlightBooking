@@ -1,11 +1,13 @@
 import React from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { View, TextInput, StyleSheet, TouchableOpacity, Image,Text } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import FlightSearching from './FlightSearching';
 
-const RoundTripSearching = ({ navigation }) => {
+const RoundTripSearching = ({ navigation, route }) => {
+    const { selectedTab } = route.params; // Get selected tab from params
+
     return (
-        <FlightSearching navigation={navigation}>
+        <FlightSearching navigation={navigation} defaultTab={selectedTab}>
             <View style={styles.searchContainer}>
                 <View style={styles.searchInputContainer}>
                     <Image source={require('../images/Icon/airplane.png')} style={styles.airplaneImg} />

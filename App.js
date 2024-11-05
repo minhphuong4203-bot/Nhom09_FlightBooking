@@ -1,21 +1,22 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
-import StartPage from './assets/screens/StartPage';
+import { StyleSheet } from 'react-native';
+import StartScreen from './assets/screens/StartScreen';
 import RoundTripSearching from './assets/screens/RoundTripSearching';
-import OneWaySearching from './assets/screens/OneWaySearching'; // Import OneWaySearching
-import MultiCitySearching from './assets/screens/MultiCitySearching'; // Import MultiCitySearching
+import OneWaySearching from './assets/screens/OneWaySearching';
+import MultiCitySearching from './assets/screens/MultiCitySearching';
 
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
+
 const Stack = createStackNavigator();
 
 export default function App() {
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="MultiCitySearching">
-        {/* <Stack.Screen
-          name="StartPage"
-          component={StartPage}
+      <Stack.Navigator initialRouteName="StartScreen">
+        <Stack.Screen
+          name="StartScreen"
+          component={StartScreen}
           options={{ headerShown: false }}
         />
         <Stack.Screen
@@ -26,8 +27,8 @@ export default function App() {
         <Stack.Screen
           name="OneWaySearching"
           component={OneWaySearching}
-          options={{ headerShown: false }} 
-        /> */}
+          options={{ headerShown: false }}
+        />
         <Stack.Screen
           name="MultiCitySearching"
           component={MultiCitySearching}
