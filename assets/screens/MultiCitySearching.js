@@ -20,10 +20,6 @@ const MultiCitySearching = ({ navigation }) => {
         setFlights(newFlights);
     };
 
-    const resetFlights = () => {
-        setFlights(defaultFlights);
-    };
-
     const updateFlight = (index, field, value) => {
         const newFlights = [...flights];
         newFlights[index][field] = value;
@@ -32,70 +28,67 @@ const MultiCitySearching = ({ navigation }) => {
 
     return (
         <FlightSearching navigation={navigation} defaultTab="Multi-city">
-            <ScrollView style={styles.container}>
-                {flights.map((flight, index) => (
-                    <View key={index} style={styles.flightContainer}>
-                        <Text style={styles.flightTitle}>Flight {index + 1}</Text>
-                        <View style={styles.flightRowContainer}>
-                            <View style={styles.flightInputContainer}>
-                                <Image source={require('../images/Icon/airplane.png')} style={styles.airplaneImg} />
-                                <TextInput
-                                    style={styles.flightInput}
-                                    placeholder="From"
-                                    placeholderTextColor="#9095a0"
-                                    value={flight.from}
-                                    onChangeText={(text) => updateFlight(index, 'from', text)}
-                                />
+            <View style={styles.container}>
+                <ScrollView contentContainerStyle={styles.scrollViewContainer}>
+                    {flights.map((flight, index) => (
+                        <View key={index} style={styles.flightContainer}>
+                            <Text style={styles.flightTitle}>Flight {index + 1}</Text>
+                            <View style={styles.flightRowContainer}>
+                                <View style={styles.flightInputContainer}>
+                                    <Image source={require('../images/Icon/airplane.png')} style={styles.airplaneImg} />
+                                    <TextInput
+                                        style={styles.flightInput}
+                                        placeholder="From"
+                                        placeholderTextColor="#9095a0"
+                                        value={flight.from}
+                                        onChangeText={(text) => updateFlight(index, 'from', text)}
+                                    />
+                                </View>
+                                <View style={styles.flightInputContainer}>
+                                    <Image source={require('../images/Icon/arrivals.png')} style={styles.airplaneImg} />
+                                    <TextInput
+                                        style={styles.flightInput}
+                                        placeholder="To"
+                                        placeholderTextColor="#9095a0"
+                                        value={flight.to}
+                                        onChangeText={(text) => updateFlight(index, 'to', text)}
+                                    />
+                                </View>
                             </View>
-                            <View style={styles.flightInputContainer}>
-                                <Image source={require('../images/Icon/arrivals.png')} style={styles.airplaneImg} />
-                                <TextInput
-                                    style={styles.flightInput}
-                                    placeholder="To"
-                                    placeholderTextColor="#9095a0"
-                                    value={flight.to}
-                                    onChangeText={(text) => updateFlight(index, 'to', text)}
-                                />
+                            <View style={styles.dateContainer}>
+                                <View style={styles.dateItem}>
+                                    <Icon name="calendar" size={16} color="#9095a0" style={styles.dateIcon} />
+                                    <Text style={styles.dateLabel}>{flight.date}</Text>
+                                </View>
+                                {index > 0 && (
+                                    <TouchableOpacity onPress={() => removeFlight(index)}>
+                                        <Icon name="trash" size={18} color="#ff4d4d" />
+                                    </TouchableOpacity>
+                                )}
                             </View>
                         </View>
-                        <View style={styles.dateContainer}>
-                            <View style={styles.dateItem}>
-                                <Icon name="calendar" size={16} color="#9095a0" style={styles.dateIcon} />
-                                <Text style={styles.dateLabel}>{flight.date}</Text>
-                            </View>
-                            {index > 0 && (
-                                <TouchableOpacity onPress={() => removeFlight(index)}>
-                                    <Icon name="trash" size={18} color="#9095a0" />
-                                </TouchableOpacity>
-                            )}
+                    ))}
+
+                    <TouchableOpacity style={[styles.addFlightButton, { borderColor: '#00bdd6', borderWidth: 1 }]} onPress={addFlight}>
+                        <Text style={[styles.addFlightText, { color: '#00bdd6' }]}>Add flight</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity style={styles.travelerContainer}>
+                        <View style={styles.travelerContent}>
+                            <Icon name="person" size={16} color="#9095a0" style={styles.travelerIcon} />
+                            <Text style={styles.travelerLabel}>Traveller</Text>
+                            <Text style={styles.dotSeparator}> • </Text>
+                            <Icon name="airplane" size={16} color="#9095a0" style={styles.travelerIcon} />
+                            <Text style={styles.travelerLabel}>Economy</Text>
                         </View>
-                    </View>
-                ))}
+                        <Icon name="chevron-down" size={16} color="#9095a0" style={{ marginLeft: 180 }} />
+                    </TouchableOpacity>
+                </ScrollView>
 
-                <TouchableOpacity style={[styles.addFlightButton, { borderColor: '#00bdd6', borderWidth: 1 }]} onPress={addFlight}>
-                    <Text style={[styles.addFlightText, { color: '#00bdd6' }]}>Add flight</Text>
+                <TouchableOpacity style={styles.searchButton}>
+                    <Text style={styles.searchButtonText}>Search flights</Text>
                 </TouchableOpacity>
-
-                {/* <TouchableOpacity style={styles.resetButton} onPress={resetFlights}>
-                    <Text style={styles.resetButtonText}>Reset to 2 flights</Text>
-                </TouchableOpacity> */}
-
-                <TouchableOpacity style={styles.travelerContainer}>
-                    <View style={styles.travelerContent}>
-                        <Icon name="person" size={16} color="#9095a0" style={styles.travelerIcon} />
-                        <Text style={styles.travelerLabel}>Traveller</Text>
-                        <Text style={styles.dotSeparator}> • </Text>
-                        <Icon name="airplane" size={16} color="#9095a0" style={styles.travelerIcon} />
-                        <Text style={styles.travelerLabel}>Economy</Text>
-                    </View>
-                    <Icon name="chevron-down" size={16} color="#9095a0" style={{ marginLeft: 180 }} />
-                </TouchableOpacity>
-
-            </ScrollView>
-
-            <TouchableOpacity style={styles.searchButton}>
-                <Text style={styles.searchButtonText}>Search flights</Text>
-            </TouchableOpacity>
+            </View>
         </FlightSearching>
     );
 };
@@ -107,13 +100,16 @@ const styles = StyleSheet.create({
         paddingTop: 16,
         paddingBottom: 80,
     },
+    scrollViewContainer: {
+        paddingBottom: 100, // Để tránh che khuất bởi nút tìm kiếm
+    },
     flightContainer: {
         marginVertical: 8,
     },
     flightTitle: {
         fontSize: 16,
         fontWeight: 'bold',
-        marginBottom: 8,
+        marginBottom: 2,
     },
     flightRowContainer: {
         flexDirection: 'row',
@@ -128,7 +124,7 @@ const styles = StyleSheet.create({
         height: 54,
         paddingHorizontal: 12,
         backgroundColor: '#f3f4f6',
-        marginVertical: 2,
+        marginVertical: 0,
         width: '48%',
     },
     flightInput: {
@@ -163,9 +159,7 @@ const styles = StyleSheet.create({
     },
     dateIcon: {
         marginRight: 8,
-        fontWeight:'700',
-        fontSize: 16,
-
+        fontWeight: 'bold',
     },
     dateLabel: {
         fontSize: 16,
@@ -184,22 +178,6 @@ const styles = StyleSheet.create({
         fontSize: 16,
         marginLeft: 8,
     },
-    resetButton: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginVertical: 16,
-        borderRadius: 8,
-        paddingVertical: 12,
-        paddingHorizontal: 16,
-        backgroundColor: '#f3f4f6',
-        borderColor: '#00bdd6',
-        borderWidth: 1,
-    },
-    resetButtonText: {
-        fontSize: 16,
-        color: '#00bdd6',
-    },
     travelerContainer: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -208,35 +186,32 @@ const styles = StyleSheet.create({
         borderColor: '#ccc',
         height: 54,
         paddingHorizontal: 12,
-        backgroundColor: '#f3f4f6',
-        marginVertical: 8,
-        width: '110%',
-        marginLeft: -16,
-        marginTop: 20,
+        marginVertical: 28,
     },
     travelerContent: {
         flexDirection: 'row',
         alignItems: 'center',
+        flex: 1,
     },
     travelerIcon: {
         marginRight: 4,
         marginLeft: 6,
     },
-
+    travelerLabel: {
+        fontSize: 14,
+        color: '#767a81',
+    },
     searchButton: {
-        position: 'absolute',
-        bottom: 50,
-        left: 16,
         backgroundColor: '#00bdd6',
-        paddingVertical: 14,
-        borderRadius: 8,
-        width: '92%',
+        paddingVertical: 16,
+        borderRadius: 10,
+        alignItems: 'center',
+        marginTop: 10,
     },
     searchButtonText: {
         color: '#fff',
-        fontSize: 16,
         fontWeight: 'bold',
-        textAlign: 'center',
+        fontSize: 16,
     },
 });
 

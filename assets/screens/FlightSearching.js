@@ -7,11 +7,30 @@ const FlightSearching = ({ navigation, children, defaultTab }) => {
 
     const handleTabPress = (tab) => {
         setSelectedTab(tab);
+        // Điều hướng đến màn hình tương ứng với tab được chọn
+        if (tab === 'Round-trip') {
+            navigation.navigate('RoundTripSearching');
+        } else if (tab === 'One-way') {
+            navigation.navigate('OneWaySearching');
+        } else if (tab === 'Multi-city') {
+            navigation.navigate('MultiCitySearching');
+        }
     };
 
     useEffect(() => {
-        setSelectedTab(defaultTab); // Update selected tab when defaultTab changes
+        if (defaultTab) {
+            setSelectedTab(defaultTab); // Cập nhật lại tab khi defaultTab thay đổi
+        }
     }, [defaultTab]);
+
+    // Lắng nghe khi quay lại màn hình
+    useEffect(() => {
+        const unsubscribe = navigation.addListener('focus', () => {
+            setSelectedTab(defaultTab || 'One-way'); // Đặt lại selectedTab khi màn hình được hiển thị
+        });
+
+        return unsubscribe; // Hủy đăng ký khi component bị unmount
+    }, [navigation, defaultTab]);
 
     return (
         <View style={styles.container}>

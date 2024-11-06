@@ -4,10 +4,10 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import FlightSearching from './FlightSearching';
 
 const RoundTripSearching = ({ navigation, route }) => {
-    const { selectedTab } = route.params; // Get selected tab from params
+    // const { selectedTab } = route.params; // Get selected tab from params
 
     return (
-        <FlightSearching navigation={navigation} defaultTab={selectedTab}>
+        <FlightSearching navigation={navigation} defaultTab="Round-trip">
             <View style={styles.searchContainer}>
                 <View style={styles.searchInputContainer}>
                     <Image source={require('../images/Icon/airplane.png')} style={styles.airplaneImg} />
@@ -17,6 +17,11 @@ const RoundTripSearching = ({ navigation, route }) => {
                         placeholderTextColor="#9095a0"
                     />
                 </View>
+                <TouchableOpacity style={styles.swapContainer}>
+                    <View style={styles.swapBackground}>
+                        <Icon name="swap-vertical" size={24} color="#000" />
+                    </View>
+                </TouchableOpacity>
                 <View style={styles.searchInputContainer}>
                     <Image source={require('../images/Icon/arrivals.png')} style={styles.airplaneImg} />
                     <TextInput
@@ -124,6 +129,28 @@ const styles = StyleSheet.create({
         width: '110%',
         marginLeft: -16,
         marginTop: 20,
+    },
+
+    swapContainer: {
+        position: 'absolute',
+        justifyContent: 'center',
+        alignItems: 'center',
+        top: 48, // Điều chỉnh vị trí
+        left: '90%', // Điều chỉnh vị trí
+        marginLeft: -35,
+        zIndex: 1,
+    },
+    swapBackground: {
+        backgroundColor: '#f3f4f6',
+        borderRadius: 25,
+        padding: 10,
+        elevation: 3,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.3,
+        shadowRadius: 4,
+        borderColor: '#fff',
+        borderWidth: 1,
     },
     travelerContent: {
         flexDirection: 'row',

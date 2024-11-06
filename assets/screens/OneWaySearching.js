@@ -1,11 +1,9 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Image, ScrollView } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import FlightSearching from './FlightSearching';
 
-const OneWaySearching = ({ navigation, selectedTab }) => {
-    if (selectedTab !== 'One-way') return null;
-
+const OneWaySearching = ({ navigation }) => {
     const [from, setFrom] = useState('');
     const [to, setTo] = useState('');
 
@@ -16,14 +14,17 @@ const OneWaySearching = ({ navigation, selectedTab }) => {
     };
 
     const handleSearch = () => {
-        console.log("Searching flights from:", from, "to:", to);
-        // Optionally navigate to a results screen
-        // navigation.navigate('SearchResults', { from, to });
+        // Logic kiểm tra và điều hướng khi nhấn nút tìm kiếm
+        if (from && to) {
+            navigation.navigate('SearchResults', { from, to });
+        } else {
+            alert("Please fill in both 'From' and 'To' fields.");
+        }
     };
 
     return (
-        <FlightSearching navigation={navigation} defaultTab={selectedTab}>
-            <View style={styles.searchContainer}>
+        <FlightSearching navigation={navigation} defaultTab="One-way">
+            <ScrollView style={styles.searchContainer}>
                 <View style={styles.searchInputContainer}>
                     <Image source={require('../images/Icon/airplane.png')} style={styles.airplaneImg} />
                     <TextInput
@@ -34,28 +35,44 @@ const OneWaySearching = ({ navigation, selectedTab }) => {
                         onChangeText={setFrom}
                     />
                 </View>
-
+                {/* Swap Icon with Background */}
                 <TouchableOpacity onPress={handleSwap} style={styles.swapContainer}>
                     <View style={styles.swapBackground}>
                         <Icon name="swap-vertical" size={24} color="#000" />
                     </View>
                 </TouchableOpacity>
-
                 <View style={styles.searchInputContainer}>
                     <Image source={require('../images/Icon/arrivals.png')} style={styles.airplaneImg} />
                     <TextInput
                         style={styles.searchInput}
                         placeholder="To"
-                                                placeholderTextColor="#9095a0"
-                    value={to}
-                    onChangeText={setTo}
+                        placeholderTextColor="#9095a0"
+                        value={to}
+                        onChangeText={setTo}
                     />
                 </View>
+                <View style={styles.dateContainer}>
+                    <View style={styles.dateItem}>
+                        <Icon name="calendar" size={16} color="#9095a0" style={styles.dateIcon} />
+                        <Text style={styles.dateLabel}>Select Date</Text>
+                    </View>
+                </View>
+
+                <TouchableOpacity style={styles.travelerContainer}>
+                    <View style={styles.travelerContent}>
+                        <Icon name="person" size={16} color="#9095a0" style={styles.travelerIcon} />
+                        <Text style={styles.travelerLabel}>Traveller</Text>
+                        <Text style={styles.dotSeparator}> • </Text>
+                        <Icon name="airplane" size={16} color="#9095a0" style={styles.travelerIcon} />
+                        <Text style={styles.travelerLabel}>Economy</Text>
+                    </View>
+                    <Icon name="chevron-down" size={16} color="#9095a0" style={{ marginLeft: 180 }} />
+                </TouchableOpacity>
 
                 <TouchableOpacity style={styles.searchButton} onPress={handleSearch}>
                     <Text style={styles.searchButtonText}>Search flights</Text>
                 </TouchableOpacity>
-            </View>
+            </ScrollView>
         </FlightSearching>
     );
 };
@@ -64,8 +81,6 @@ const styles = StyleSheet.create({
     searchContainer: {
         padding: 16,
         paddingBottom: 80,
-        borderTopWidth: 1,
-        borderTopColor: '#f0f0f0',
     },
     searchInputContainer: {
         flexDirection: 'row',
@@ -87,29 +102,84 @@ const styles = StyleSheet.create({
     airplaneImg: {
         width: 20,
         height: 20,
-        marginLeft: 6,
         marginRight: 12,
     },
-    swapContainer: {
-        alignItems: 'center',
-        justifyContent: 'center',
+    dateContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
         marginVertical: 16,
     },
-    swapBackground: {
+    dateItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 12,
+        paddingHorizontal: 16,
         borderWidth: 1,
         borderColor: '#ccc',
-        borderRadius: 50,
-        padding: 8,
+        borderRadius: 8,
         backgroundColor: '#f3f4f6',
+        height: 54,
+        width: '100%',
+    },
+    dateIcon: {
+        marginRight: 8,
+    },
+    dateLabel: {
+        fontSize: 16,
+        color: '#9095a0',
+    },
+    swapContainer: {
+        position: 'absolute',
+        justifyContent: 'center',
+        alignItems: 'center',
+        top: 32, // Điều chỉnh vị trí
+        left: '90%', // Điều chỉnh vị trí
+        marginLeft: -35,
+        zIndex: 1,
+    },
+    swapBackground: {
+        backgroundColor: '#f3f4f6',
+        borderRadius: 25,
+        padding: 10,
+        elevation: 3,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.3,
+        shadowRadius: 4,
+        borderColor: '#fff',
+        borderWidth: 1,
+    },
+    travelerContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        borderTopWidth: 1,
+        borderBottomWidth: 1,
+        borderColor: '#ccc',
+        height: 54,
+        paddingHorizontal: 12,
+        backgroundColor: '#f3f4f6',
+        marginVertical: 8,
+        width: '110%',
+        marginLeft: -16,
+        marginTop: 20,
+    },
+    travelerContent: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    travelerIcon: {
+        marginRight: 4,
+        marginLeft: 6,
+    },
+    travelerLabel: {
+        fontSize: 14,
+        color: '#767a81',
     },
     searchButton: {
-        position: 'absolute',
-        bottom: 50,
-        left: 20,
         backgroundColor: '#00bdd6',
         paddingVertical: 14,
         borderRadius: 8,
-        width: '90%',
+        marginTop: 20,
     },
     searchButtonText: {
         color: '#fff',
