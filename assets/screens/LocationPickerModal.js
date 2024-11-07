@@ -15,32 +15,39 @@ const LocationPickerModal = ({ visible, onClose, onSelect, locations, title, fro
 
     const renderLocationItem = ({ item }) => (
         <View>
-            <TouchableOpacity style={styles.locationItem} onPress={() => toggleLocationExpansion(item.id)}>
-                <Image source={require('../images/Icon/location.png')} style={styles.locationIcon} />
-                <View>
-                    <Text style={styles.locationCity}>{item.city}</Text>
-                    <Text style={styles.locationDescription}>{item.description}</Text>
-                </View>
-                <Icon name={expandedLocations.includes(item.id) ? 'chevron-up' : 'chevron-down'} size={20} color="#000" style={{ position: 'absolute', right: 0 }} />
-            </TouchableOpacity>
-            {expandedLocations.includes(item.id) && item.airports && (
+            {item.id !== 'anywhere' && (
+                // Phần "From" và "To" sẽ không có "Anywhere"
+                <TouchableOpacity style={styles.locationItem} onPress={() => toggleLocationExpansion(item.id)}>
+                    <Image source={require('../images/Icon/location.png')} style={styles.locationIcon} />
+                    <View>
+                        <Text style={styles.locationCity}>{item.city}</Text>
+                        <Text style={styles.locationDescription}>{item.description}</Text>
+                    </View>
+                    <Icon name={expandedLocations.includes(item.id) ? 'chevron-up' : 'chevron-down'} size={20} color="#000" style={{ position: 'absolute', right: 0 }} />
+                </TouchableOpacity>
+            )}
+            {item.id === 'anywhere' && selectedInput === 'to' && (
+                <TouchableOpacity style={styles.locationItem} onPress={() => onSelect('Anywhere')}>
+                    <Icon name="globe" size={20} color="#000" style={styles.locationIcon} />
+                    <View>
+                        <Text style={styles.locationCity}>Anywhere</Text>
+                        <Text style={styles.locationDescription}>Trips to anywhere in the world</Text>
+                    </View>
+                </TouchableOpacity>
+            )}
+            {item.id !== 'anywhere' && expandedLocations.includes(item.id) && item.airports && (
                 <FlatList
                     data={item.airports}
                     renderItem={({ item: airport }) => (
-                        <TouchableOpacity
-                            style={styles.airportItem}
-                            onPress={() => onSelect(airport.code)}
-                        >
-
-                        <View style={{flexDirection: 'row', justifyContent:'space-around', alignItems:'center'}}>
-                            <Icon name="airplane" size={20} color="#000" />
-                            <View style={{marginLeft:-50}}>
-                            <Text style={styles.airportName}>{airport.name}</Text>
-                            <Text style={styles.airportDistance}>{airport.distance}</Text>
+                        <TouchableOpacity style={styles.airportItem} onPress={() => onSelect(item.city)}>
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center' }}>
+                                <Icon name="airplane" size={20} color="#000" />
+                                <View style={{ marginLeft: -50 }}>
+                                    <Text style={styles.airportName}>{airport.name}</Text>
+                                    <Text style={styles.airportDistance}>{airport.distance}</Text>
+                                </View>
+                                <Text style={styles.airportCode}>{airport.code}</Text>
                             </View>
-                            <Text style={styles.airportCode}>{airport.code}</Text>
-                        </View>
-
                         </TouchableOpacity>
                     )}
                     keyExtractor={(airport) => airport.code}
@@ -48,7 +55,6 @@ const LocationPickerModal = ({ visible, onClose, onSelect, locations, title, fro
             )}
         </View>
     );
-
     return (
         <Modal
             visible={visible}
@@ -74,7 +80,7 @@ const LocationPickerModal = ({ visible, onClose, onSelect, locations, title, fro
                                 placeholder="From"
                                 placeholderTextColor="#9095a0"
                                 value={from}
-                                onChangeText={(text) => onSelect(text)}
+                                onChangeText={(text) => handleLocationSelect(text)} // Cập nhật khi nhập
                                 autoFocus={selectedInput === 'from'}
                             />
                         </TouchableOpacity>
@@ -90,14 +96,14 @@ const LocationPickerModal = ({ visible, onClose, onSelect, locations, title, fro
                                 placeholder="To"
                                 placeholderTextColor="#9095a0"
                                 value={to}
-                                onChangeText={(text) => onSelect(text)}
+                                onChangeText={(text) => handleLocationSelect(text)} // Cập nhật khi nhập
                                 autoFocus={selectedInput === 'to'}
                             />
                         </TouchableOpacity>
                     </View>
 
                     <FlatList
-                        data={locations}
+                        data={selectedInput === 'to' ? [...locations, { id: 'anywhere', city: 'Anywhere', description: 'Trips to anywhere in the world' }] : locations}
                         renderItem={renderLocationItem}
                         keyExtractor={(item) => item.id}
                     />
@@ -115,12 +121,12 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     subModalContainer: {
-        width: '100%', // Full width of the screen
+        width: '100%',
         backgroundColor: '#fff',
         borderRadius: 8,
-        marginTop: 30, // Margin from the top
+        marginTop: 30,
         padding: 20,
-        flex: 1, // Allow the modal to fill the available space
+        flex: 1,
     },
     headerContainer: {
         flexDirection: 'row',
@@ -152,7 +158,7 @@ const styles = StyleSheet.create({
         height: 54,
         paddingHorizontal: 12,
         backgroundColor: '#f3f4f6',
-        marginBottom: 2, // Space between inputs
+        marginBottom: 2,
     },
     fromToInput: {
         flex: 1,
@@ -205,7 +211,6 @@ const styles = StyleSheet.create({
     locationDescription: {
         fontSize: 14,
         color: '#a8acb5',
-
     },
     airportItem: {
         paddingLeft: 20,
@@ -217,12 +222,11 @@ const styles = StyleSheet.create({
     airportName: {
         fontSize: 14,
         color: '#333',
-        fontWeight:'700'
+        fontWeight: '700',
     },
-    airportDistance:{
+    airportDistance: {
         fontSize: 14,
         color: '#a8acb5',
-
     },
     airportCode: {
         fontSize: 16,

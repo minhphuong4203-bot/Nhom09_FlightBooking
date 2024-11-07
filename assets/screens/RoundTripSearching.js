@@ -6,7 +6,7 @@ import LocationPickerModal from './LocationPickerModal';
 
 const locations = [
     { id: '1', city: 'London, United Kingdom', description: 'Capital of England', airports: [{ name: 'London City Airport', distance: '20 km to destination', code: 'LCY' }, { name: 'Heathrow Airport', code: 'LHR', distance: '13 km to destination' }] },
-    { id: '2', city: 'London, Ontario, Canada', description: 'City in Ontario, Canada', airports: [{ name: 'London Airport', distance: '30 km to destination', code: 'YXU' }] },
+    { id: '2', city: 'Ontario, Canada', description: 'City in Ontario, Canada', airports: [{ name: 'London Airport', distance: '30 km to destination', code: 'YXU' }] },
 ];
 
 const RoundTripSearching = ({ navigation, route }) => {
@@ -26,11 +26,11 @@ const RoundTripSearching = ({ navigation, route }) => {
 
     const handleLocationSelect = (location) => {
         if (selectedInput === 'from') {
-            setFrom(location);
+            setFrom(location); // Cập nhật thông tin "From"
         } else if (selectedInput === 'to') {
-            setTo(location);
+            setTo(location); // Cập nhật thông tin "To"
         }
-        closeLocationPicker();
+        closeLocationPicker(); // Đóng modal ngay lập tức
     };
 
     const handleSwap = () => {
