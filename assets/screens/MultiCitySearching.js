@@ -2,6 +2,16 @@ import React, { useState } from 'react';
 import { View, StyleSheet, TouchableOpacity, Text, ScrollView, TextInput, Image } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import FlightSearching from './FlightSearching';
+import LocationPickerModal from './LocationPickerModal'; // Import modal
+
+const locations = [
+    { id: '1', city: 'New York', description: 'NYC, USA', airports: [{ name: 'JFK Airport', distance: '30 km', code: 'JFK' }] },
+    { id: '2', city: 'Los Angeles', description: 'LA, USA', airports: [{ name: 'LAX Airport', distance: '20 km', code: 'LAX' }] },
+
+    { id: '3', city: 'Ontario, Canada', description: 'City in Ontario, Canada', airports: [{ name: 'London Airport', distance: '30 km to destination', code: 'YXU' }] },
+
+    // Thêm địa điểm khác tại đây
+];
 
 const MultiCitySearching = ({ navigation }) => {
     const defaultFlights = [
@@ -9,6 +19,10 @@ const MultiCitySearching = ({ navigation }) => {
         { from: '', to: '', date: 'Fri, Jul 14' },
     ];
     const [flights, setFlights] = useState(defaultFlights);
+    const [modalVisible, setModalVisible] = useState(false);
+    const [selectedFlightIndex, setSelectedFlightIndex] = useState(null);
+    const [locationType, setLocationType] = useState(null);
+
 
     const addFlight = () => {
         setFlights([...flights, { from: '', to: '', date: 'Fri, Jul 14' }]);
@@ -26,6 +40,21 @@ const MultiCitySearching = ({ navigation }) => {
         setFlights(newFlights);
     };
 
+    const openLocationPicker = (index, type) => {
+        setSelectedFlightIndex(index);
+        setLocationType(type);
+        setModalVisible(true);
+    };
+
+    const handleLocationSelect = (location) => {
+        if (locationType === 'from') {
+            updateFlight(selectedFlightIndex, 'from', location);
+        } else {
+            updateFlight(selectedFlightIndex, 'to', location);
+        }
+        setModalVisible(false);
+    };
+
     return (
         <FlightSearching navigation={navigation} defaultTab="Multi-city">
             <View style={styles.container}>
@@ -34,26 +63,26 @@ const MultiCitySearching = ({ navigation }) => {
                         <View key={index} style={styles.flightContainer}>
                             <Text style={styles.flightTitle}>Flight {index + 1}</Text>
                             <View style={styles.flightRowContainer}>
-                                <View style={styles.flightInputContainer}>
+                                <TouchableOpacity style={styles.flightInputContainer} onPress={() => openLocationPicker(index, 'from')}>
                                     <Image source={require('../images/Icon/airplane.png')} style={styles.airplaneImg} />
                                     <TextInput
-                                        style={styles.flightInput}
+                                        style={[styles.flightInput, flight.from ? styles.selectedInputText : styles.placeholderText]}
                                         placeholder="From"
                                         placeholderTextColor="#9095a0"
                                         value={flight.from}
-                                        onChangeText={(text) => updateFlight(index, 'from', text)}
+                                        editable={false} // Không cho phép nhập trực tiếp
                                     />
-                                </View>
-                                <View style={styles.flightInputContainer}>
+                                </TouchableOpacity>
+                                <TouchableOpacity style={styles.flightInputContainer} onPress={() => openLocationPicker(index, 'to')}>
                                     <Image source={require('../images/Icon/arrivals.png')} style={styles.airplaneImg} />
                                     <TextInput
-                                        style={styles.flightInput}
+                                        style={[styles.flightInput, flight.to ? styles.selectedInputText : styles.placeholderText]}
                                         placeholder="To"
                                         placeholderTextColor="#9095a0"
                                         value={flight.to}
-                                        onChangeText={(text) => updateFlight(index, 'to', text)}
+                                        editable={false} // Không cho phép nhập trực tiếp
                                     />
-                                </View>
+                                </TouchableOpacity>
                             </View>
                             <View style={styles.dateContainer}>
                                 <View style={styles.dateItem}>
@@ -88,6 +117,23 @@ const MultiCitySearching = ({ navigation }) => {
                 <TouchableOpacity style={styles.searchButton}>
                     <Text style={styles.searchButtonText}>Search flights</Text>
                 </TouchableOpacity>
+
+                {/* Modal để chọn địa điểm */}
+                <LocationPickerModal
+                    visible={modalVisible}
+                    onClose={() => setModalVisible(false)}
+                    onSelect={handleLocationSelect}
+                    locations={locations}
+                    title="Select Location"
+                    from={flights[selectedFlightIndex]?.from} // Truyền giá trị "from"
+                    to={flights[selectedFlightIndex]?.to} // Truyền giá trị "to"
+                    onSwap={() => {
+                        const temp = flights[selectedFlightIndex]?.from;
+                        updateFlight(selectedFlightIndex, 'from', flights[selectedFlightIndex]?.to);
+                        updateFlight(selectedFlightIndex, 'to', temp);
+                    }}
+                    selectedInput={locationType} // Truyền loại địa điểm đã chọn
+                />
             </View>
         </FlightSearching>
     );
@@ -132,6 +178,12 @@ const styles = StyleSheet.create({
         height: '100%',
         fontSize: 16,
         backgroundColor: 'transparent',
+    },
+    selectedInputText: {
+        color: '#000', // Màu chữ khi đã chọn
+    },
+    placeholderText: {
+        color: '#9095a0', // Màu chữ khi chưa chọn
     },
     airplaneImg: {
         width: 20,
