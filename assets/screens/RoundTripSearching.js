@@ -26,11 +26,11 @@ const RoundTripSearching = ({ navigation, route }) => {
 
     const handleLocationSelect = (location) => {
         if (selectedInput === 'from') {
-            setFrom(location); // Cập nhật thông tin "From"
+            setFrom(location); // Set the city name
         } else if (selectedInput === 'to') {
-            setTo(location); // Cập nhật thông tin "To"
+            setTo(location); // Set the city name
         }
-        closeLocationPicker(); // Đóng modal ngay lập tức
+        closeLocationPicker();
     };
 
     const handleSwap = () => {
@@ -42,27 +42,27 @@ const RoundTripSearching = ({ navigation, route }) => {
     return (
         <FlightSearching navigation={navigation} defaultTab="Round-trip">
             <View style={styles.searchContainer}>
-                <TouchableOpacity style={styles.searchInputContainer} onPress={() => openLocationPicker('from')}>
+                <TouchableOpacity onPress={() => openLocationPicker('from')} style={styles.searchInputContainer}>
                     <Image source={require('../images/Icon/airplane.png')} style={styles.airplaneImg} />
                     <TextInput
-                        style={styles.searchInput}
+                        style={[styles.searchInput, from ? styles.selectedInput : null]} // Thay đổi kiểu dáng nếu có giá trị
                         placeholder="From"
                         placeholderTextColor="#9095a0"
                         value={from}
-                        onFocus={() => openLocationPicker('from')}
+                        editable={false}
                     />
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.swapContainer} onPress={handleSwap}>
                     <Icon name="swap-vertical" size={24} color="#000" />
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.searchInputContainer} onPress={() => openLocationPicker('to')}>
+                <TouchableOpacity onPress={() => openLocationPicker('to')} style={styles.searchInputContainer}>
                     <Image source={require('../images/Icon/arrivals.png')} style={styles.airplaneImg} />
                     <TextInput
-                        style={styles.searchInput}
+                        style={[styles.searchInput, to ? styles.selectedInput : null]} // Thay đổi kiểu dáng nếu có giá trị
                         placeholder="To"
                         placeholderTextColor="#9095a0"
                         value={to}
-                        onFocus={() => openLocationPicker('to')}
+                        editable={false}
                     />
                 </TouchableOpacity>
                 <View style={styles.dateContainer}>
@@ -96,7 +96,7 @@ const RoundTripSearching = ({ navigation, route }) => {
                 visible={isModalVisible}
                 onClose={closeLocationPicker}
                 onSelect={handleLocationSelect}
-                locations={locations}
+                locations={locations}  // Kiểm tra xem locations có dữ liệu không
                 title={`Where ${selectedInput === 'from' ? 'from?' : 'to?'}`}
                 from={from}
                 to={to}
@@ -130,6 +130,9 @@ const styles = StyleSheet.create({
         height: '100%',
         fontSize: 16,
         backgroundColor: 'transparent',
+    },
+    selectedInput: {
+        color: '#000', // Màu chữ khi có giá trị
     },
     airplaneImg: {
         width: 20,

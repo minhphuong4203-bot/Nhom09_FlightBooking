@@ -1,20 +1,20 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Image, ScrollView } from 'react-native';
+import { View, TextInput, StyleSheet, TouchableOpacity, Image, ScrollView, Text } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import FlightSearching from './FlightSearching';
+import LocationPickerModal from './LocationPickerModal';
+
+const locations = [
+    { id: '1', city: 'New York, USA', description: 'City in New York State', airports: [{ name: 'John F.Kennedy International Airport', distance: '20 km to destination', code: 'JFK' }, { name: 'LaGuardia Airport', code: 'EWR', distance: '11 km to destination' }] },
+];
 
 const OneWaySearching = ({ navigation }) => {
     const [from, setFrom] = useState('');
     const [to, setTo] = useState('');
-
-    const handleSwap = () => {
-        const temp = from;
-        setFrom(to);
-        setTo(temp);
-    };
+    const [isModalVisible, setModalVisible] = useState(false);
+    const [selectedInput, setSelectedInput] = useState(null);
 
     const handleSearch = () => {
-        // Logic kiểm tra và điều hướng khi nhấn nút tìm kiếm
         if (from && to) {
             navigation.navigate('SearchResults', { from, to });
         } else {
@@ -22,35 +22,58 @@ const OneWaySearching = ({ navigation }) => {
         }
     };
 
+    const openLocationPicker = (inputType) => {
+        setSelectedInput(inputType);
+        setModalVisible(true);
+    };
+
+    const closeLocationPicker = () => {
+        setModalVisible(false);
+    };
+
+    const handleLocationSelect = (location) => {
+        if (selectedInput === 'from') {
+            setFrom(location);
+        } else if (selectedInput === 'to') {
+            setTo(location);
+        }
+        closeLocationPicker();
+    };
+
+    const handleSwap = () => {
+        const temp = from;
+        setFrom(to);
+        setTo(temp);
+    };
+
     return (
         <FlightSearching navigation={navigation} defaultTab="One-way">
             <ScrollView style={styles.searchContainer}>
-                <View style={styles.searchInputContainer}>
+                <TouchableOpacity onPress={() => openLocationPicker('from')} style={styles.searchInputContainer}>
                     <Image source={require('../images/Icon/airplane.png')} style={styles.airplaneImg} />
                     <TextInput
-                        style={styles.searchInput}
+                        style={[styles.searchInput, from ? styles.selectedInput : null]} // Thay đổi kiểu dáng nếu có giá trị
                         placeholder="From"
                         placeholderTextColor="#9095a0"
                         value={from}
-                        onChangeText={setFrom}
+                        editable={false} // Disable editing directly
                     />
-                </View>
-                {/* Swap Icon with Background */}
+                </TouchableOpacity>
                 <TouchableOpacity onPress={handleSwap} style={styles.swapContainer}>
                     <View style={styles.swapBackground}>
                         <Icon name="swap-vertical" size={24} color="#000" />
                     </View>
                 </TouchableOpacity>
-                <View style={styles.searchInputContainer}>
+                <TouchableOpacity onPress={() => openLocationPicker('to')} style={styles.searchInputContainer}>
                     <Image source={require('../images/Icon/arrivals.png')} style={styles.airplaneImg} />
                     <TextInput
-                        style={styles.searchInput}
+                        style={[styles.searchInput, to ? styles.selectedInput : null]} // Thay đổi kiểu dáng nếu có giá trị
                         placeholder="To"
                         placeholderTextColor="#9095a0"
                         value={to}
-                        onChangeText={setTo}
+                        editable={false} // Disable editing directly
                     />
-                </View>
+                </TouchableOpacity>
                 <View style={styles.dateContainer}>
                     <View style={styles.dateItem}>
                         <Icon name="calendar" size={16} color="#9095a0" style={styles.dateIcon} />
@@ -73,6 +96,18 @@ const OneWaySearching = ({ navigation }) => {
                     <Text style={styles.searchButtonText}>Search flights</Text>
                 </TouchableOpacity>
             </ScrollView>
+
+            <LocationPickerModal
+                visible={isModalVisible}
+                onClose={closeLocationPicker}
+                onSelect={handleLocationSelect}
+                locations={locations}  // Kiểm tra xem locations có dữ liệu không
+                title={`Where ${selectedInput === 'from' ? 'from?' : 'to?'}`}
+                from={from}
+                to={to}
+                onSwap={handleSwap}
+                selectedInput={selectedInput}
+            />
         </FlightSearching>
     );
 };
@@ -98,6 +133,9 @@ const styles = StyleSheet.create({
         height: '100%',
         fontSize: 16,
         backgroundColor: 'transparent',
+    },
+    selectedInput: {
+        color: '#000', // Màu chữ khi có giá trị
     },
     airplaneImg: {
         width: 20,
@@ -132,8 +170,8 @@ const styles = StyleSheet.create({
         position: 'absolute',
         justifyContent: 'center',
         alignItems: 'center',
-        top: 32, // Điều chỉnh vị trí
-        left: '90%', // Điều chỉnh vị trí
+        top: 32,
+        left: '90%',
         marginLeft: -35,
         zIndex: 1,
     },
