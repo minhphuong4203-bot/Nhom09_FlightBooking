@@ -1,35 +1,70 @@
-import React from 'react';
-import { View, TextInput, StyleSheet, TouchableOpacity, Image,Text } from 'react-native';
+import React, { useState } from 'react';
+import { View, TextInput, StyleSheet, TouchableOpacity, Image, Text } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import FlightSearching from './FlightSearching';
+import LocationPickerModal from './LocationPickerModal';
+
+const locations = [
+    { id: '1', city: 'London, United Kingdom', description: 'Capital of England', airports: [{ name: 'London City Airport', code: 'LCY' }, { name: 'Heathrow Airport', code: 'LHR' }] },
+    { id: '2', city: 'London, Ontario, Canada', description: 'City in Ontario, Canada', airports: [{ name: 'London Airport', code: 'YXU' }] },
+];
 
 const RoundTripSearching = ({ navigation, route }) => {
-    // const { selectedTab } = route.params; // Get selected tab from params
+    const [isModalVisible, setModalVisible] = useState(false);
+    const [selectedInput, setSelectedInput] = useState(null);
+    const [from, setFrom] = useState('');
+    const [to, setTo] = useState('');
+
+    const openLocationPicker = (inputType) => {
+        setSelectedInput(inputType);
+        setModalVisible(true);
+    };
+
+    const closeLocationPicker = () => {
+        setModalVisible(false);
+    };
+
+    const handleLocationSelect = (location) => {
+        if (selectedInput === 'from') {
+            setFrom(location);
+        } else if (selectedInput === 'to') {
+            setTo(location);
+        }
+        closeLocationPicker();
+    };
+
+    const handleSwap = () => {
+        const temp = from;
+        setFrom(to);
+        setTo(temp);
+    };
 
     return (
         <FlightSearching navigation={navigation} defaultTab="Round-trip">
             <View style={styles.searchContainer}>
-                <View style={styles.searchInputContainer}>
+                <TouchableOpacity style={styles.searchInputContainer} onPress={() => openLocationPicker('from')}>
                     <Image source={require('../images/Icon/airplane.png')} style={styles.airplaneImg} />
                     <TextInput
                         style={styles.searchInput}
                         placeholder="From"
                         placeholderTextColor="#9095a0"
+                        value={from}
+                        onFocus={() => openLocationPicker('from')}
                     />
-                </View>
-                <TouchableOpacity style={styles.swapContainer}>
-                    <View style={styles.swapBackground}>
-                        <Icon name="swap-vertical" size={24} color="#000" />
-                    </View>
                 </TouchableOpacity>
-                <View style={styles.searchInputContainer}>
+                <TouchableOpacity style={styles.swapContainer} onPress={handleSwap}>
+                    <Icon name="swap-vertical" size={24} color="#000" />
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.searchInputContainer} onPress={() => openLocationPicker('to')}>
                     <Image source={require('../images/Icon/arrivals.png')} style={styles.airplaneImg} />
                     <TextInput
                         style={styles.searchInput}
                         placeholder="To"
                         placeholderTextColor="#9095a0"
+                        value={to}
+                        onFocus={() => openLocationPicker('to')}
                     />
-                </View>
+                </TouchableOpacity>
                 <View style={styles.dateContainer}>
                     <View style={styles.dateItem}>
                         <Icon name="calendar" size={16} color="#9095a0" style={styles.dateIcon} />
@@ -56,6 +91,18 @@ const RoundTripSearching = ({ navigation, route }) => {
             <TouchableOpacity style={styles.searchButton}>
                 <Text style={styles.searchButtonText}>Search flights</Text>
             </TouchableOpacity>
+
+            <LocationPickerModal
+                visible={isModalVisible}
+                onClose={closeLocationPicker}
+                onSelect={handleLocationSelect}
+                locations={locations}
+                title={`Where ${selectedInput === 'from' ? 'from?' : 'to?'}`}
+                from={from}
+                to={to}
+                onSwap={handleSwap}
+                selectedInput={selectedInput}
+            />
         </FlightSearching>
     );
 };
@@ -130,17 +177,14 @@ const styles = StyleSheet.create({
         marginLeft: -16,
         marginTop: 20,
     },
-
     swapContainer: {
         position: 'absolute',
         justifyContent: 'center',
         alignItems: 'center',
-        top: 48, // Điều chỉnh vị trí
-        left: '90%', // Điều chỉnh vị trí
+        top: 48,
+        left: '90%',
         marginLeft: -35,
         zIndex: 1,
-    },
-    swapBackground: {
         backgroundColor: '#f3f4f6',
         borderRadius: 25,
         padding: 10,
