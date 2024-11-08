@@ -17,7 +17,7 @@ const LocationPickerModal = ({ visible, onClose, onSelect, locations, title, fro
         <View>
             {item.id !== 'anywhere' && (
                 <TouchableOpacity style={styles.locationItem} onPress={() => toggleLocationExpansion(item.id)}>
-                    <Image source={require('../images/Icon/location.png')} style={styles.locationIcon} />
+                    <Icon name="location-outline" size={16} color="#9095a0" style={styles.travelerIcon} />
                     <View>
                         <Text style={styles.locationCity}>{item.city}</Text>
                         <Text style={styles.locationDescription}>{item.description}</Text>
@@ -78,7 +78,7 @@ const LocationPickerModal = ({ visible, onClose, onSelect, locations, title, fro
 
                     <View style={styles.fromToContainer}>
                         <TouchableOpacity style={styles.searchInputContainer} onPress={() => selectedInput === 'from' && null}>
-                            <Image source={require('../images/Icon/airplane.png')} style={styles.airplaneImg} />
+                            <Icon name="airplane-landing" size={24} color="#000" />
                             <TextInput
                                 style={styles.fromToInput}
                                 placeholder="From"
@@ -93,7 +93,7 @@ const LocationPickerModal = ({ visible, onClose, onSelect, locations, title, fro
                         </TouchableOpacity>
 
                         <TouchableOpacity style={styles.searchInputContainer} onPress={() => selectedInput === 'to' && null}>
-                            <Image source={require('../images/Icon/arrivals.png')} style={styles.airplaneImg} />
+                            <Icon name="airplane-takeoff" size={24} color="#000" />
                             <TextInput
                                 style={styles.fromToInput}
                                 placeholder="To"

@@ -94,7 +94,7 @@ const MultiCitySearching = ({ navigation }) => {
                             <Text style={styles.flightTitle}>Flight {index + 1}</Text>
                             <View style={styles.flightRowContainer}>
                                 <TouchableOpacity style={styles.flightInputContainer} onPress={() => openLocationPicker(index, 'from')}>
-                                    <Image source={require('../images/Icon/airplane.png')} style={styles.airplaneImg} />
+                                    <Icon name="airplane-landing" size={24} color="#000" />
                                     <TextInput
                                         style={[styles.flightInput, flight.from ? styles.selectedInputText : styles.placeholderText]}
                                         placeholder="From"
@@ -104,7 +104,7 @@ const MultiCitySearching = ({ navigation }) => {
                                     />
                                 </TouchableOpacity>
                                 <TouchableOpacity style={styles.flightInputContainer} onPress={() => openLocationPicker(index, 'to')}>
-                                    <Image source={require('../images/Icon/arrivals.png')} style={styles.airplaneImg} />
+                                    <Icon name="airplane-takeoff" size={24} color="#000" />
                                     <TextInput
                                         style={[styles.flightInput, flight.to ? styles.selectedInputText : styles.placeholderText]}
                                         placeholder="To"
@@ -137,10 +137,10 @@ const MultiCitySearching = ({ navigation }) => {
 
                     <TouchableOpacity style={styles.travelerContainer} onPress={openTravelOptions}>
                         <View style={styles.travelerContent}>
-                            <Icon name="person" size={16} color="#9095a0" style={styles.travelerIcon} />
+                            <Icon name="person-breastfeeding" size={16} color="#9095a0" style={styles.travelerIcon} />
                             <Text style={styles.travelerLabel}> {`Traveller: ${totalTravelers} Total`}</Text>
                             <Text style={styles.dotSeparator}> • </Text>
-                            <Icon name="airplane" size={16} color="#9095a0" style={styles.travelerIcon} />
+                            <Icon name="seat-passenger" size={16} color="#9095a0" style={styles.travelerIcon} />
                             <Text style={styles.travelerLabel}>{travelerData.cabinClass}</Text>
                         </View>
                         <Icon name="chevron-down" size={16} color="#9095a0" style={{ marginLeft: 180 }} />
