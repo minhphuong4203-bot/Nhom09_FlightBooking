@@ -3,6 +3,43 @@ import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-nati
 import Icon from 'react-native-vector-icons/Ionicons';
 
 const FlightDetails = ({ navigation }) => {
+    const flightData = {
+        totalPrice: 806,
+        trip: {
+            destination: 'New York',
+            origin: 'London',
+            dates: 'Fri, Jul 14 - Sun, Jul 17',
+            travellers: '1 traveller • Economy • Round-trip',
+        },
+        flights: [
+            {
+                segment: 'London - New York City',
+                airline: 'SkyHaven FD695',
+                time: '6:30 AM - 2:00 PM',
+                stops: '1 stop • 7h 30m',
+                details: ['28" seat pitch, Light meal', 'Chance of Wifi, No power outlet', 'No entertainment'],
+            },
+            {
+                segment: 'New York City - London',
+                airline: 'EcoWings FD695',
+                time: '10:00 PM - 10:15 AM',
+                stops: 'Direct • 9h 30m',
+                details: [],
+            },
+        ],
+        baggage: {
+            included: '1 personal item - Must go under the seat in front of you',
+            extra: [
+                { type: 'Carry-on', price: 'From $11.99' },
+                { type: 'Checked bag', price: 'From $19.99' },
+            ],
+        },
+    };
+
+    const handleSelect = () => {
+        navigation.navigate('PassengerInformation', { flightData });
+    };
+
     return (
         <ScrollView style={styles.container}>
             {/* Header */}
@@ -11,65 +48,62 @@ const FlightDetails = ({ navigation }) => {
                     <Icon name="arrow-back" size={24} color="#000" />
                 </TouchableOpacity>
                 <Text style={styles.headerTitle}>Flight details</Text>
-                <Icon name="heart-outline" size={24} color="#000" />
-                <Icon name="share-outline" size={24} color="#000" />
+                <View style={styles.headerIcons}>
+                    <Icon name="heart-outline" size={24} color="#000" style={styles.iconSpacing} />
+                    <Icon name="share-outline" size={24} color="#000" />
+                </View>
             </View>
 
             {/* Trip Info */}
             <View style={styles.tripInfo}>
-                <Text style={styles.tripTitle}>Your trip to New York</Text>
-                <Text style={styles.tripSubtitle}>from London</Text>
-                <Text style={styles.dateText}>Fri, Jul 14 - Sun, Jul 17</Text>
-                <Text style={styles.detailsText}>1 traveller • Economy • Round-trip</Text>
+                <Text style={styles.tripTitle}>Your trip to {flightData.trip.destination}</Text>
+                <Text style={styles.tripSubtitle}>from {flightData.trip.origin}</Text>
+                <Text style={styles.dateText}>{flightData.trip.dates}</Text>
+                <Text style={styles.detailsText}>{flightData.trip.travellers}</Text>
             </View>
 
-            {/* Flight Details Card */}
-            <View style={styles.flightCard}>
-                <View style={styles.flightSegment}>
-                    <Text style={styles.segmentTitle}>London - New York City</Text>
-                    <Text style={styles.airlineInfo}>SkyHaven FD695</Text>
-                    <Text style={styles.timeText}>6:30 AM - 2:00 PM</Text>
-                    <Text style={styles.stopText}>1 stop • 7h 30m</Text>
-                    <Text style={styles.infoText}>28" seat pitch, Light meal</Text>
-                    <Text style={styles.infoText}>Chance of Wifi, No power outlet</Text>
-                    <Text style={styles.infoText}>No entertainment</Text>
+            {/* Flight Details */}
+            {flightData.flights.map((flight, index) => (
+                <View key={index} style={styles.flightCard}>
+                    <View style={styles.flightSegment}>
+                        <Text style={styles.segmentTitle}>{flight.segment}</Text>
+                        <Text style={styles.airlineInfo}>{flight.airline}</Text>
+                        <Text style={styles.timeText}>{flight.time}</Text>
+                        <Text style={styles.stopText}>{flight.stops}</Text>
+                        {flight.details.map((detail, idx) => (
+                            <Text key={idx} style={styles.infoText}>{detail}</Text>
+                        ))}
+                    </View>
+                    <TouchableOpacity>
+                        <Text style={styles.moreInfoText}>More info</Text>
+                    </TouchableOpacity>
                 </View>
-                <TouchableOpacity>
-                    <Text style={styles.moreInfoText}>More info</Text>
-                </TouchableOpacity>
-            </View>
-
-            <View style={styles.flightCard}>
-                <View style={styles.flightSegment}>
-                    <Text style={styles.segmentTitle}>New York City - London</Text>
-                    <Text style={styles.airlineInfo}>EcoWings FD695</Text>
-                    <Text style={styles.timeText}>10:00 PM - 10:15 AM</Text>
-                    <Text style={styles.stopText}>Direct • 9h 30m</Text>
-                </View>
-                <TouchableOpacity>
-                    <Text style={styles.moreInfoText}>More info</Text>
-                </TouchableOpacity>
-            </View>
+            ))}
 
             {/* Included Baggage */}
             <View style={styles.baggageSection}>
                 <Text style={styles.sectionTitle}>Included baggage</Text>
-                <Text style={styles.infoText}>1 personal item - Must go under the seat in front of you</Text>
+                <Text style={styles.infoText}>{flightData.baggage.included}</Text>
                 <Text style={styles.includedText}>Included</Text>
             </View>
 
             {/* Extra Baggage */}
             <View style={styles.baggageSection}>
                 <Text style={styles.sectionTitle}>Extra baggage</Text>
-                <Text style={styles.extraBaggageText}>Carry-on - From $11.99</Text>
-                <Text style={styles.extraBaggageText}>Checked bag - From $19.99</Text>
+                {flightData.baggage.extra.map((item, idx) => (
+                    <Text key={idx} style={styles.extraBaggageText}>
+                        {item.type} - {item.price}
+                    </Text>
+                ))}
             </View>
 
             {/* Total Price and Select Button */}
             <View style={styles.footer}>
-                <Text style={styles.totalPrice}>$806</Text>
-                <Text style={styles.totalPriceText}>Total price</Text>
-                <TouchableOpacity style={styles.selectButton}>
+                <View>
+                    <Text style={styles.totalPrice}>${flightData.totalPrice}</Text>
+                    <Text style={styles.totalPriceText}>Total price</Text>
+                </View>
+                <TouchableOpacity style={styles.selectButton} onPress={handleSelect}>
                     <Text style={styles.selectText}>Select</Text>
                 </TouchableOpacity>
             </View>
@@ -94,6 +128,12 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: 'bold',
     },
+    headerIcons: {
+        flexDirection: 'row',
+    },
+    iconSpacing: {
+        marginRight: 16,
+    },
     tripInfo: {
         padding: 16,
         borderBottomWidth: 1,
@@ -106,6 +146,7 @@ const styles = StyleSheet.create({
     tripSubtitle: {
         fontSize: 16,
         color: '#666',
+        marginVertical: 4,
     },
     dateText: {
         fontSize: 16,
@@ -137,6 +178,7 @@ const styles = StyleSheet.create({
     airlineInfo: {
         fontSize: 14,
         color: '#666',
+        marginVertical: 4,
     },
     timeText: {
         fontSize: 16,
@@ -146,10 +188,12 @@ const styles = StyleSheet.create({
     stopText: {
         fontSize: 14,
         color: '#666',
+        marginVertical: 4,
     },
     infoText: {
         fontSize: 12,
         color: '#999',
+        marginVertical: 2,
     },
     moreInfoText: {
         color: '#00bdd6',
@@ -182,6 +226,7 @@ const styles = StyleSheet.create({
         padding: 16,
         borderTopWidth: 1,
         borderTopColor: '#ddd',
+        backgroundColor: '#fff',
     },
     totalPrice: {
         fontSize: 18,
@@ -194,8 +239,8 @@ const styles = StyleSheet.create({
     selectButton: {
         backgroundColor: '#00bdd6',
         borderRadius: 8,
-        paddingVertical: 10,
-        paddingHorizontal: 20,
+        paddingVertical: 12,
+        paddingHorizontal: 24,
     },
     selectText: {
         color: '#fff',
