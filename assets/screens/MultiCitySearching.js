@@ -4,6 +4,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import FlightSearching from './FlightSearching';
 import LocationPickerModal from './LocationPickerModal'; // Import modal
 import DatePicker from './DateSelectionModel'; // Import your date picker
+import TravelOptions from './FilterOtherOptions'; // Import travel options
 
 const locations = [
     { id: '1', city: 'New York', description: 'NYC, USA', airports: [{ name: 'JFK Airport', distance: '30 km', code: 'JFK' }] },
@@ -24,6 +25,28 @@ const MultiCitySearching = ({ navigation }) => {
     const [selectedFlightIndex, setSelectedFlightIndex] = useState(null);
     const [locationType, setLocationType] = useState(null);
     const [datePickerVisible, setDatePickerVisible] = useState(false);
+
+    const [isTravelOptionsVisible, setTravelOptionsVisible] = useState(false);
+    const [travelerData, setTravelerData] = useState({
+        adults: 0,
+        children: 0,
+        infants: 0,
+        cabinClass: 'Economy',
+    });
+
+    const openTravelOptions = () => {
+        setTravelOptionsVisible(true);
+    };
+
+    const closeTravelOptions = () => {
+        setTravelOptionsVisible(false);
+    };
+
+    const handleTravelOptionsSelect = (data) => {
+        setTravelerData(data);
+        closeTravelOptions();
+    };
+    const totalTravelers = travelerData.adults + travelerData.children + travelerData.infants;
 
     const addFlight = () => {
         setFlights([...flights, { from: '', to: '', date: 'Fri, Jul 14' }]);
@@ -112,13 +135,13 @@ const MultiCitySearching = ({ navigation }) => {
                         <Text style={[styles.addFlightText, { color: '#00bdd6' }]}>Add flight</Text>
                     </TouchableOpacity>
 
-                    <TouchableOpacity style={styles.travelerContainer}>
+                    <TouchableOpacity style={styles.travelerContainer} onPress={openTravelOptions}>
                         <View style={styles.travelerContent}>
                             <Icon name="person" size={16} color="#9095a0" style={styles.travelerIcon} />
-                            <Text style={styles.travelerLabel}>Traveller</Text>
+                            <Text style={styles.travelerLabel}> {`Traveller: ${totalTravelers} Total`}</Text>
                             <Text style={styles.dotSeparator}> • </Text>
                             <Icon name="airplane" size={16} color="#9095a0" style={styles.travelerIcon} />
-                            <Text style={styles.travelerLabel}>Economy</Text>
+                            <Text style={styles.travelerLabel}>{travelerData.cabinClass}</Text>
                         </View>
                         <Icon name="chevron-down" size={16} color="#9095a0" style={{ marginLeft: 180 }} />
                     </TouchableOpacity>
@@ -127,6 +150,15 @@ const MultiCitySearching = ({ navigation }) => {
                 <TouchableOpacity style={styles.searchButton}>
                     <Text style={styles.searchButtonText}>Search flights</Text>
                 </TouchableOpacity>
+
+                <TravelOptions
+                    visible={isTravelOptionsVisible}
+                    onClose={closeTravelOptions}
+                    onSelect={handleTravelOptionsSelect}
+                    initialData={travelerData}
+                    tripType="multi-city" // Specify trip type
+
+                />
 
                 {/* Modal để chọn địa điểm */}
                 <LocationPickerModal
@@ -256,6 +288,12 @@ const styles = StyleSheet.create({
         height: 54,
         paddingHorizontal: 12,
         marginVertical: 28,
+    },
+    dotSeparator: {
+        fontSize: 24,
+        color: '#9095a0',
+        marginHorizontal: 4,
+        marginLeft: 6,
     },
     travelerContent: {
         flexDirection: 'row',
