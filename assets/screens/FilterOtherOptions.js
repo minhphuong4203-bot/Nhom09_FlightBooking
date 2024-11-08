@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Modal } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
-const TravelOptions = ({ visible, onClose, onSelect }) => {
+const TravelOptions = ({ visible, onClose, onSelect, tripType }) => {
     const [adults, setAdults] = useState(0);
     const [children, setChildren] = useState(0);
     const [infants, setInfants] = useState(0);
@@ -46,6 +46,14 @@ const TravelOptions = ({ visible, onClose, onSelect }) => {
         onClose();       // Close the modal
     };
 
+    const getFooterText = () => {
+        if (tripType === 'one-way') {
+            return 'One Way';
+        } else if (tripType === 'round-trip') {
+            return 'Round Trip';
+        }
+        return 'Multi City';
+    };
 
     return (
         <Modal style={styles.container} visible={visible} >
@@ -125,7 +133,7 @@ const TravelOptions = ({ visible, onClose, onSelect }) => {
                     </View>
                 </View>
                 <View style={styles.footerContainer}>
-                    <Text style={styles.roundTripText}>Round-trip</Text>
+                    <Text style={styles.roundTripText}>{getFooterText()}</Text>
                     <TouchableOpacity style={styles.doneButton} onPress={handleDone}>
                         <Text style={styles.doneButtonText}>Done</Text>
                     </TouchableOpacity>

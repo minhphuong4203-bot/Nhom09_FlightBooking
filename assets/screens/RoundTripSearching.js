@@ -22,7 +22,7 @@ const RoundTripSearching = ({ navigation, route }) => {
 
     const [isTravelOptionsVisible, setTravelOptionsVisible] = useState(false);
     const [travelerData, setTravelerData] = useState({
-        adults: 1,
+        adults: 0,
         children: 0,
         infants: 0,
         cabinClass: 'Economy',
@@ -132,7 +132,7 @@ const RoundTripSearching = ({ navigation, route }) => {
                         <Icon name="airplane" size={16} color="#9095a0" style={styles.travelerIcon} />
                         <Text style={styles.travelerLabel}>{travelerData.cabinClass}</Text>
                     </View>
-                    <Icon name="chevron-down" size={16} color="#9095a0" style={{ marginLeft: 180 }} />
+                    <Icon name="chevron-down" size={16} color="#9095a0" style={{ position: 'absolute', right: 30 }} />
                 </TouchableOpacity>
             </View>
 
@@ -145,6 +145,8 @@ const RoundTripSearching = ({ navigation, route }) => {
                 onClose={closeTravelOptions}
                 onSelect={handleTravelOptionsSelect}
                 initialData={travelerData}
+                tripType="round-trip" // Specify trip type
+
             />
 
 
@@ -266,6 +268,8 @@ const styles = StyleSheet.create({
         borderWidth: 1,
     },
     travelerContent: {
+        position: 'absolute',
+        left: 24,
         flexDirection: 'row',
         alignItems: 'center',
     },
@@ -278,9 +282,10 @@ const styles = StyleSheet.create({
         color: '#767a81',
     },
     dotSeparator: {
-        fontSize: 14,
+        fontSize: 24,
         color: '#9095a0',
         marginHorizontal: 4,
+        marginLeft: 6,
     },
     searchButton: {
         position: 'absolute',
