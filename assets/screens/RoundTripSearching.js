@@ -3,6 +3,7 @@ import { View, TextInput, StyleSheet, TouchableOpacity, Image, Text } from 'reac
 import Icon from 'react-native-vector-icons/Ionicons';
 import FlightSearching from './FlightSearching';
 import LocationPickerModal from './LocationPickerModal';
+import DatePicker from './DateSelectionModel'; // Import your DatePicker component
 
 const locations = [
     { id: '1', city: 'London, United Kingdom', description: 'Capital of England', airports: [{ name: 'London City Airport', distance: '20 km to destination', code: 'LCY' }, { name: 'Heathrow Airport', code: 'LHR', distance: '13 km to destination' }] },
@@ -11,9 +12,12 @@ const locations = [
 
 const RoundTripSearching = ({ navigation, route }) => {
     const [isModalVisible, setModalVisible] = useState(false);
+    const [isDatePickerVisible, setDatePickerVisible] = useState(false);
     const [selectedInput, setSelectedInput] = useState(null);
     const [from, setFrom] = useState('');
     const [to, setTo] = useState('');
+    const [departureDate, setDepartureDate] = useState(null); // Start with null
+    const [returnDate, setReturnDate] = useState(null); // Start with null
 
     const openLocationPicker = (inputType) => {
         setSelectedInput(inputType);
@@ -26,9 +30,9 @@ const RoundTripSearching = ({ navigation, route }) => {
 
     const handleLocationSelect = (location) => {
         if (selectedInput === 'from') {
-            setFrom(location); // Set the city name
+            setFrom(location);
         } else if (selectedInput === 'to') {
-            setTo(location); // Set the city name
+            setTo(location);
         }
         closeLocationPicker();
     };
@@ -39,13 +43,32 @@ const RoundTripSearching = ({ navigation, route }) => {
         setTo(temp);
     };
 
+    const openDatePicker = () => {
+        setDatePickerVisible(true);
+    };
+
+    const handleDateSelect = (newDepartureDate, newReturnDate) => {
+        // If the user only selects one date, set the other to null
+        setDepartureDate(newDepartureDate);
+        if (newReturnDate) {
+            setReturnDate(newReturnDate);
+        }
+        setDatePickerVisible(false);
+    };
+
+    const formatDate = (date) => {
+        if (!date) return 'Select Date'; // Fallback if no date is selected
+        const options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' };
+        return date.toLocaleDateString('en-US', options);
+    };
+
     return (
         <FlightSearching navigation={navigation} defaultTab="Round-trip">
             <View style={styles.searchContainer}>
                 <TouchableOpacity onPress={() => openLocationPicker('from')} style={styles.searchInputContainer}>
                     <Image source={require('../images/Icon/airplane.png')} style={styles.airplaneImg} />
                     <TextInput
-                        style={[styles.searchInput, from ? styles.selectedInput : null]} // Thay đổi kiểu dáng nếu có giá trị
+                        style={[styles.searchInput, from ? styles.selectedInput : null]}
                         placeholder="From"
                         placeholderTextColor="#9095a0"
                         value={from}
@@ -58,7 +81,7 @@ const RoundTripSearching = ({ navigation, route }) => {
                 <TouchableOpacity onPress={() => openLocationPicker('to')} style={styles.searchInputContainer}>
                     <Image source={require('../images/Icon/arrivals.png')} style={styles.airplaneImg} />
                     <TextInput
-                        style={[styles.searchInput, to ? styles.selectedInput : null]} // Thay đổi kiểu dáng nếu có giá trị
+                        style={[styles.searchInput, to ? styles.selectedInput : null]}
                         placeholder="To"
                         placeholderTextColor="#9095a0"
                         value={to}
@@ -66,14 +89,14 @@ const RoundTripSearching = ({ navigation, route }) => {
                     />
                 </TouchableOpacity>
                 <View style={styles.dateContainer}>
-                    <View style={styles.dateItem}>
+                    <TouchableOpacity onPress={openDatePicker} style={styles.dateItem}>
                         <Icon name="calendar" size={16} color="#9095a0" style={styles.dateIcon} />
-                        <Text style={styles.dateLabel}>Fri, Jul 14</Text>
-                    </View>
-                    <View style={styles.dateItem}>
+                        <Text style={styles.dateLabel}>{formatDate(departureDate)}</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={openDatePicker} style={styles.dateItem}>
                         <Icon name="calendar" size={16} color="#9095a0" style={styles.dateIcon} />
-                        <Text style={styles.dateLabel}>Fri, Jul 14</Text>
-                    </View>
+                        <Text style={styles.dateLabel}>{formatDate(returnDate)}</Text>
+                    </TouchableOpacity>
                 </View>
 
                 <TouchableOpacity style={styles.travelerContainer}>
@@ -96,12 +119,20 @@ const RoundTripSearching = ({ navigation, route }) => {
                 visible={isModalVisible}
                 onClose={closeLocationPicker}
                 onSelect={handleLocationSelect}
-                locations={locations}  // Kiểm tra xem locations có dữ liệu không
+                locations={locations}
                 title={`Where ${selectedInput === 'from' ? 'from?' : 'to?'}`}
                 from={from}
                 to={to}
                 onSwap={handleSwap}
                 selectedInput={selectedInput}
+            />
+
+            <DatePicker
+                visible={isDatePickerVisible}
+                onClose={() => setDatePickerVisible(false)}
+                onSelect={handleDateSelect} // Updated function to handle both dates
+                departureDate={departureDate}
+                returnDate={returnDate}
             />
         </FlightSearching>
     );
@@ -132,7 +163,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'transparent',
     },
     selectedInput: {
-        color: '#000', // Màu chữ khi có giá trị
+        color: '#000',
     },
     airplaneImg: {
         width: 20,
@@ -164,7 +195,7 @@ const styles = StyleSheet.create({
     },
     dateLabel: {
         fontSize: 16,
-        color: '#9095a0',
+        color: '#000',
     },
     travelerContainer: {
         flexDirection: 'row',

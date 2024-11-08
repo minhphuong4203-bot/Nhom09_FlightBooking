@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, FlatList, TextInput, Modal, TouchableWithoutFeedback, Image } from 'react-native';
 
-const DatePicker = () => {
-    const [selectedStartDate, setSelectedStartDate] = useState(new Date());
-    const [selectedEndDate, setSelectedEndDate] = useState(new Date());
-    const [isModalVisible, setIsModalVisible] = useState(false);
+const DatePicker = ({ visible, onClose, onSelect, departureDate, returnDate }) => {
+    const [selectedStartDate, setSelectedStartDate] = useState(departureDate || new Date());
+    const [selectedEndDate, setSelectedEndDate] = useState(returnDate || new Date());
+    const [isSelectingStartDate, setIsSelectingStartDate] = useState(true); // Track which date is being selected
 
     const getDayOfWeek = (date) => (date.getDay() + 6) % 7;
 
@@ -35,6 +35,10 @@ const DatePicker = () => {
         return date.toLocaleDateString('en-US', options);
     };
 
+    const handleDateInputPress = (isStartDate) => {
+        setIsSelectingStartDate(isStartDate); // Track which input is selected
+    };
+
     const renderDate = ({ item }) => (
         <TouchableOpacity
             style={[
@@ -47,10 +51,10 @@ const DatePicker = () => {
             ]}
             onPress={() => {
                 if (item.isCurrentMonth) {
-                    if (item.date.getTime() < selectedEndDate.getTime()) {
-                        setSelectedStartDate(item.date);
+                    if (isSelectingStartDate) {
+                        setSelectedStartDate(item.date); // Select start date
                     } else {
-                        setSelectedEndDate(item.date);
+                        setSelectedEndDate(item.date); // Select end date
                     }
                 }
             }}
@@ -86,99 +90,70 @@ const DatePicker = () => {
         );
     };
 
+    const handleDonePress = () => {
+        onSelect(selectedStartDate, selectedEndDate);
+        onClose();
+    };
+
     return (
-        <View style={styles.container}>
-            <View style={styles.modalBackground}>
-                <View style={styles.subContainer}>
-                    <View style={styles.headerContainer}>
-                        <Text style={styles.headerText}>Date</Text>
-                        <TouchableOpacity onPress={() => setIsModalVisible(true)}>
-                            <Text style={styles.closeText}>X</Text>
-                        </TouchableOpacity>
-                    </View>
-
-                    <View style={styles.dateInputContainer}>
-                        <View style={styles.inputContainer}>
-                            <Image source={require('../images/Icon/airplane.png')} style={styles.airplaneImg} />
-                            <TextInput
-                                style={styles.dateInput}
-                                value={formatDate(selectedStartDate)} // Here
-                                placeholder="From"
-                                editable={false} // Non-editable
-                            />
+        <Modal visible={visible} transparent onRequestClose={onClose}>
+            <TouchableWithoutFeedback onPress={onClose}>
+                <View style={styles.modalBackground}>
+                    <View style={styles.subContainer}>
+                        <View style={styles.headerContainer}>
+                            <Text style={styles.headerText}>Dates</Text>
+                            <TouchableOpacity onPress={onClose}>
+                                <Text style={styles.closeText}>X</Text>
+                            </TouchableOpacity>
                         </View>
-                        <View style={styles.inputContainer}>
-                            <Image source={require('../images/Icon/arrivals.png')} style={styles.airplaneImg} />
-                            <TextInput
-                                style={styles.dateInput}
-                                value={formatDate(selectedEndDate)} // Here
-                                placeholder="To"
-                                editable={false} // Non-editable
-                            />
+
+
+                        <View style={styles.dateInputContainer}>
+                            <TouchableOpacity onPress={() => handleDateInputPress(true)} style={styles.inputContainer}>
+                                <Image source={require('../images/Icon/airplane.png')} style={styles.airplaneImg} />
+                                <TextInput
+                                    style={[
+                                        styles.dateInput,
+                                        isSelectingStartDate ? styles.selectedInput : styles.defaultInput
+                                    ]}
+                                    value={formatDate(selectedStartDate)}
+                                    placeholder="From"
+                                    editable={false}
+                                />
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={() => handleDateInputPress(false)} style={styles.inputContainer}>
+                                <Image source={require('../images/Icon/arrivals.png')} style={styles.airplaneImg} />
+                                <TextInput
+                                    style={[
+                                        styles.dateInput,
+                                        !isSelectingStartDate ? styles.selectedInput : styles.defaultInput
+                                    ]}
+                                    value={formatDate(selectedEndDate)}
+                                    placeholder="To"
+                                    editable={false}
+                                />
+                            </TouchableOpacity>
                         </View>
-                    </View>
+                        <View style={styles.weekdayHeader}>
+                            {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, index) => (
+                                <View key={`${day}-${index}`} style={styles.weekdayHeaderItem}>
+                                    <Text style={styles.weekdayHeaderText}>{day}</Text>
+                                </View>
+                            ))}
+                        </View>
 
-                    <View style={styles.weekdayHeader}>
-                        {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, index) => (
-                            <View key={`${day}-${index}`} style={styles.weekdayHeaderItem}>
-                                <Text style={styles.weekdayHeaderText}>{day}</Text>
-                            </View>
-                        ))}
-                    </View>
+                        {renderMonths()}
 
-                    {renderMonths()}
-
-                    <View style={styles.footer}>
-                        <Text style={styles.footerText}>Round Trip</Text>
-                        <TouchableOpacity style={styles.doneButton} onPress={() => console.log('Done pressed')}>
-                            <Text style={styles.doneButtonText}>Done</Text>
-                        </TouchableOpacity>
+                        <View style={styles.footer}>
+                            <Text style={styles.footerText}>Round Trip</Text>
+                            <TouchableOpacity style={styles.doneButton} onPress={handleDonePress}>
+                                <Text style={styles.doneButtonText}>Done</Text>
+                            </TouchableOpacity>
+                        </View>
                     </View>
                 </View>
-            </View>
-
-            <Modal
-                visible={isModalVisible}
-                transparent
-                onRequestClose={() => setIsModalVisible(false)}
-            >
-                <TouchableWithoutFeedback onPress={() => setIsModalVisible(false)}>
-                    <View style={styles.modalBackground}>
-                        <View style={[styles.modalContainer, { marginTop: 30 }]}>
-                            <View style={styles.headerContainer}>
-                                <Text style={styles.headerText}>Date</Text>
-                                <TouchableOpacity onPress={() => setIsModalVisible(false)} style={{ position: 'absolute', right: 0 }}>
-                                    <Text style={styles.closeText}>X</Text>
-                                </TouchableOpacity>
-                            </View>
-
-                            <View style={styles.dateInputContainer}>
-                                <View style={styles.inputContainer}>
-                                    <Image source={require('../images/Icon/airplane.png')} style={styles.airplaneImg} />
-                                    <TextInput
-                                        style={styles.dateInput}
-                                        value={formatDate(selectedStartDate)}
-                                        placeholder="From"
-                                        editable={false} // Non-editable
-                                    />
-                                </View>
-                                <View style={styles.inputContainer}>
-                                    <Image source={require('../images/Icon/arrivals.png')} style={styles.airplaneImg} />
-                                    <TextInput
-                                        style={styles.dateInput}
-                                        value={formatDate(selectedEndDate)}
-                                        placeholder="To"
-                                        editable={false} // Non-editable
-                                    />
-                                </View>
-                            </View>
-
-                            {renderMonths()}
-                        </View>
-                    </View>
-                </TouchableWithoutFeedback>
-            </Modal>
-        </View>
+            </TouchableWithoutFeedback>
+        </Modal>
     );
 };
 
@@ -242,6 +217,22 @@ const styles = StyleSheet.create({
         flex: 1,
         marginHorizontal: 8,
         justifyContent: 'center',
+    },
+    dateInput: {
+        flex: 1,
+        borderWidth: 1,
+        padding: 10,
+        borderRadius: 4,
+        minHeight: 50,
+        fontWeight: '700',
+        fontSize: 16,
+        color: '#000',
+    },
+    selectedInput: {
+        borderColor: '#00BCD4', // Color for the selected input
+    },
+    defaultInput: {
+        borderColor: '#ccc', // Default border color
     },
     weekdayHeader: {
         flexDirection: 'row',
