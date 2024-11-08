@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, FlatList, TextInput, Modal, TouchableWithoutFeedback, Image } from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
 
 const DatePicker = ({ visible, onClose, onSelect, departureDate, returnDate, tripType }) => {
     const [selectedStartDate, setSelectedStartDate] = useState(departureDate || new Date());
@@ -120,7 +119,7 @@ const DatePicker = ({ visible, onClose, onSelect, departureDate, returnDate, tri
 
                         <View style={styles.dateInputContainer}>
                             <TouchableOpacity onPress={() => handleDateInputPress(true)} style={styles.inputContainer}>
-                                <Icon name="airplane-landing" size={24} color="#000" />
+                                <Image source={require('../images/Icon/airplane.png')} style={styles.airplaneImg} />
                                 <TextInput
                                     style={styles.dateInput}
                                     value={formatDate(selectedStartDate)}
@@ -130,7 +129,7 @@ const DatePicker = ({ visible, onClose, onSelect, departureDate, returnDate, tri
                             </TouchableOpacity>
                             {tripType === 'round-trip' && (
                                 <TouchableOpacity onPress={() => handleDateInputPress(false)} style={styles.inputContainer}>
-                                    <Icon name="airplane-takeoff" size={24} color="#000" />
+                                    <Image source={require('../images/Icon/arrivals.png')} style={styles.airplaneImg} />
                                     <TextInput
                                         style={styles.dateInput}
                                         value={selectedEndDate ? formatDate(selectedEndDate) : ''}
