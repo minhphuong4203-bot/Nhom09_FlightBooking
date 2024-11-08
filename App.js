@@ -14,8 +14,8 @@ const Stack = createStackNavigator();
 export default function App() {
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Options">
-        {/* <Stack.Screen
+      <Stack.Navigator initialRouteName="StartScreen">
+        <Stack.Screen
           name="StartScreen"
           component={StartScreen}
           options={{ headerShown: false }}
@@ -34,12 +34,12 @@ export default function App() {
           name="MultiCitySearching"
           component={MultiCitySearching}
           options={{ headerShown: false }}
-        /> */}
-        <Stack.Screen
+        />
+        {/* <Stack.Screen
           name="Options"
           component={Options}
           options={{ headerShown: false }}
-        />
+        /> */}
       </Stack.Navigator>
       <StatusBar style="auto" />
     </NavigationContainer>

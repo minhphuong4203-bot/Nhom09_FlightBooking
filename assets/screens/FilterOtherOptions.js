@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Modal } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
-const TravelOptions = () => {
-    const [adults, setAdults] = useState(1);
+const TravelOptions = ({ visible, onClose, onSelect }) => {
+    const [adults, setAdults] = useState(0);
     const [children, setChildren] = useState(0);
     const [infants, setInfants] = useState(0);
     const [cabinClass, setCabinClass] = useState('Economy');
@@ -35,89 +35,103 @@ const TravelOptions = () => {
         }
     };
 
-    return (
-        <View style={styles.container}>
-            <View style={styles.backgroundContainer} />
-            <View style={styles.headerContainer}>
-                <Text style={styles.headerTitle}>Options</Text>
-                <TouchableOpacity style={styles.closeButton}>
-                    <Icon name="close" size={24} color="#000" />
-                </TouchableOpacity>
-            </View>
-            <View style={styles.subContainer}>
-                <Text style={styles.sectionTitle}>Traveller</Text>
-                <View style={styles.optionsContainer}>
-                    <View style={styles.optionItem}>
-                        <View style={styles.travellerItem}>
-                            <Text style={styles.label}>Adults</Text>
-                            <Text style={styles.subLabel}>12+ years</Text>
-                        </View>
-                        <View style={styles.counterContainer}>
-                            <TouchableOpacity style={styles.counterButton} onPress={() => handleDecrement('adults')}>
-                                <Text style={styles.counterButtonText}>-</Text>
-                            </TouchableOpacity>
-                            <Text style={styles.counterValue}>{adults}</Text>
-                            <TouchableOpacity style={styles.counterButton} onPress={() => handleIncrement('adults')}>
-                                <Text style={styles.counterButtonText}>+</Text>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                    <View style={styles.optionItem}>
-                        <View style={styles.travellerItem}>
-                            <Text style={styles.label}>Children</Text>
-                            <Text style={styles.subLabel}>2-12 years</Text>
-                        </View>
-                        <View style={styles.counterContainer}>
-                            <TouchableOpacity style={styles.counterButton} onPress={() => handleDecrement('children')}>
-                                <Text style={styles.counterButtonText}>-</Text>
-                            </TouchableOpacity>
-                            <Text style={styles.counterValue}>{children}</Text>
-                            <TouchableOpacity style={styles.counterButton} onPress={() => handleIncrement('children')}>
-                                <Text style={styles.counterButtonText}>+</Text>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                    <View style={styles.optionItem}>
-                        <View style={styles.travellerItem}>
-                            <Text style={styles.label}>Infants</Text>
-                            <Text style={styles.subLabel}>Under 2 years</Text>
-                        </View>
-                        <View style={styles.counterContainer}>
-                            <TouchableOpacity style={styles.counterButton} onPress={() => handleDecrement('infants')}>
-                                <Text style={styles.counterButtonText}>-</Text>
-                            </TouchableOpacity>
-                            <Text style={styles.counterValue}>{infants}</Text>
-                            <TouchableOpacity style={styles.counterButton} onPress={() => handleIncrement('infants')}>
-                                <Text style={styles.counterButtonText}>+</Text>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                </View>
+    const handleDone = () => {
+        const data = {
+            adults,
+            children,
+            infants,
+            cabinClass,
+        };
+        onSelect(data);  // Call the onSelect callback with the data
+        onClose();       // Close the modal
+    };
 
-                <Text style={[styles.sectionTitle, { marginTop: 48 }]}>Cabin Class</Text>
-                <View style={styles.cabinClassContainer}>
-                    {['Economy', 'Premium Economy', 'Business', 'First'].map((classOption) => (
-                        <TouchableOpacity
-                            key={classOption}
-                            style={[
-                                styles.cabinClassOption,
-                                classOption === cabinClass && styles.selectedCabinClass,
-                            ]}
-                            onPress={() => setCabinClass(classOption)}
-                        >
-                            <Text style={styles.cabinClassText}>{classOption}</Text>
-                            {classOption === cabinClass && <Text style={styles.tickMark}>✓</Text>}
-                        </TouchableOpacity>
-                    ))}
+
+    return (
+        <Modal style={styles.container} visible={visible} >
+            <View style={styles.subContainer}>
+                <View style={styles.backgroundContainer} />
+                <View style={styles.headerContainer}>
+                    <Text style={styles.headerTitle}>Options</Text>
+                    <TouchableOpacity style={styles.closeButton} onPress={onClose}>
+                        <Icon name="close" size={24} color="#000" />
+                    </TouchableOpacity>
+                </View>
+                <View style={styles.subContainer}>
+                    <Text style={styles.sectionTitle}>Traveller</Text>
+                    <View style={styles.optionsContainer}>
+                        <View style={styles.optionItem}>
+                            <View style={styles.travellerItem}>
+                                <Text style={styles.label}>Adults</Text>
+                                <Text style={styles.subLabel}>12+ years</Text>
+                            </View>
+                            <View style={styles.counterContainer}>
+                                <TouchableOpacity style={styles.counterButton} onPress={() => handleDecrement('adults')}>
+                                    <Text style={styles.counterButtonText}>-</Text>
+                                </TouchableOpacity>
+                                <Text style={styles.counterValue}>{adults}</Text>
+                                <TouchableOpacity style={styles.counterButton} onPress={() => handleIncrement('adults')}>
+                                    <Text style={styles.counterButtonText}>+</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                        <View style={styles.optionItem}>
+                            <View style={styles.travellerItem}>
+                                <Text style={styles.label}>Children</Text>
+                                <Text style={styles.subLabel}>2-12 years</Text>
+                            </View>
+                            <View style={styles.counterContainer}>
+                                <TouchableOpacity style={styles.counterButton} onPress={() => handleDecrement('children')}>
+                                    <Text style={styles.counterButtonText}>-</Text>
+                                </TouchableOpacity>
+                                <Text style={styles.counterValue}>{children}</Text>
+                                <TouchableOpacity style={styles.counterButton} onPress={() => handleIncrement('children')}>
+                                    <Text style={styles.counterButtonText}>+</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                        <View style={styles.optionItem}>
+                            <View style={styles.travellerItem}>
+                                <Text style={styles.label}>Infants</Text>
+                                <Text style={styles.subLabel}>Under 2 years</Text>
+                            </View>
+                            <View style={styles.counterContainer}>
+                                <TouchableOpacity style={styles.counterButton} onPress={() => handleDecrement('infants')}>
+                                    <Text style={styles.counterButtonText}>-</Text>
+                                </TouchableOpacity>
+                                <Text style={styles.counterValue}>{infants}</Text>
+                                <TouchableOpacity style={styles.counterButton} onPress={() => handleIncrement('infants')}>
+                                    <Text style={styles.counterButtonText}>+</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </View>
+
+                    <Text style={[styles.sectionTitle, { marginTop: 48 }]}>Cabin Class</Text>
+                    <View style={styles.cabinClassContainer}>
+                        {['Economy', 'Premium Economy', 'Business', 'First'].map((classOption) => (
+                            <TouchableOpacity
+                                key={classOption}
+                                style={[
+                                    styles.cabinClassOption,
+                                    classOption === cabinClass && styles.selectedCabinClass,
+                                ]}
+                                onPress={() => setCabinClass(classOption)}
+                            >
+                                <Text style={styles.cabinClassText}>{classOption}</Text>
+                                {classOption === cabinClass && <Text style={styles.tickMark}>✓</Text>}
+                            </TouchableOpacity>
+                        ))}
+                    </View>
+                </View>
+                <View style={styles.footerContainer}>
+                    <Text style={styles.roundTripText}>Round-trip</Text>
+                    <TouchableOpacity style={styles.doneButton} onPress={handleDone}>
+                        <Text style={styles.doneButtonText}>Done</Text>
+                    </TouchableOpacity>
                 </View>
             </View>
-            <View style={styles.footerContainer}>
-                <Text style={styles.roundTripText}>Round-trip</Text>
-                <TouchableOpacity style={styles.doneButton}>
-                    <Text style={styles.doneButtonText}>Done</Text>
-                </TouchableOpacity>
-            </View>
-        </View>
+        </Modal>
     );
 };
 
@@ -259,7 +273,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
         borderRadius: 8,
         width: 160,
-        height:44,
+        height: 44,
         justifyContent: 'center',
         alignItems: 'center',
     },
