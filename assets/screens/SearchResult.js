@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, FlatList } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import SortFilterModal from './SortFilterModal';
 
 // Sample data for flights
 const flightData = [
@@ -62,13 +63,32 @@ const FlightResult = ({ flight }) => (
 
 // Main component to render the flight search results
 const FlightResults = ({ navigation }) => {
+    const [isSortFilterVisible, setSortFilterVisible] = useState(false);
+
+    const handleApplyFilters = (filters) => {
+        console.log(filters); // Handle filtering logic here with the applied filters
+        setSortFilterVisible(false);
+    };
+
     return (
         <View style={styles.container}>
+            {/* Sort & Filter Button */}
+            <TouchableOpacity
+                style={styles.sortFilterButton}
+                onPress={() => setSortFilterVisible(true)}
+            >
+                <Text style={styles.sortFilterButtonText}>Sort & Filter</Text>
+                <Icon name="funnel-outline" size={20} color="#fff" />
+            </TouchableOpacity>
+
+            {/* Search Results List */}
             <FlatList
                 data={flightData}
                 keyExtractor={(item) => item.id}
                 renderItem={({ item }) => <FlightResult flight={item} />}
             />
+
+            {/* Back Button */}
             <TouchableOpacity
                 style={styles.backButton}
                 onPress={() => navigation.goBack()}
@@ -76,6 +96,13 @@ const FlightResults = ({ navigation }) => {
                 <Icon name="arrow-back" size={24} color="#fff" />
                 <Text style={styles.backText}>Back</Text>
             </TouchableOpacity>
+
+            {/* SortFilterModal */}
+            <SortFilterModal
+                visible={isSortFilterVisible}
+                onClose={() => setSortFilterVisible(false)}
+                onApply={handleApplyFilters}
+            />
         </View>
     );
 };
@@ -84,6 +111,21 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#f9f9f9',
+    },
+    sortFilterButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#00bdd6',
+        padding: 10,
+        borderRadius: 8,
+        margin: 16,
+    },
+    sortFilterButtonText: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: 'bold',
+        marginRight: 8,
     },
     resultContainer: {
         backgroundColor: '#fff',
