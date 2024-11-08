@@ -3,6 +3,7 @@ import { View, StyleSheet, TouchableOpacity, Text, ScrollView, TextInput, Image 
 import Icon from 'react-native-vector-icons/Ionicons';
 import FlightSearching from './FlightSearching';
 import LocationPickerModal from './LocationPickerModal'; // Import modal
+import DatePicker from './DateSelectionModel'; // Import your date picker
 
 const locations = [
     { id: '1', city: 'New York', description: 'NYC, USA', airports: [{ name: 'JFK Airport', distance: '30 km', code: 'JFK' }] },
@@ -15,14 +16,14 @@ const locations = [
 
 const MultiCitySearching = ({ navigation }) => {
     const defaultFlights = [
-        { from: '', to: '', date: 'Fri, Jul 14' },
-        { from: '', to: '', date: 'Fri, Jul 14' },
+        { from: '', to: '', date: new Date() },
+        { from: '', to: '', date: new Date() },
     ];
     const [flights, setFlights] = useState(defaultFlights);
     const [modalVisible, setModalVisible] = useState(false);
     const [selectedFlightIndex, setSelectedFlightIndex] = useState(null);
     const [locationType, setLocationType] = useState(null);
-
+    const [datePickerVisible, setDatePickerVisible] = useState(false);
 
     const addFlight = () => {
         setFlights([...flights, { from: '', to: '', date: 'Fri, Jul 14' }]);
@@ -55,6 +56,12 @@ const MultiCitySearching = ({ navigation }) => {
         setModalVisible(false);
     };
 
+    const handleDateSelect = (date) => {
+        updateFlight(selectedFlightIndex, 'date', date);
+        setDatePickerVisible(false);
+    };
+
+
     return (
         <FlightSearching navigation={navigation} defaultTab="Multi-city">
             <View style={styles.container}>
@@ -85,10 +92,13 @@ const MultiCitySearching = ({ navigation }) => {
                                 </TouchableOpacity>
                             </View>
                             <View style={styles.dateContainer}>
-                                <View style={styles.dateItem}>
+                                <TouchableOpacity style={styles.dateItem} onPress={() => {
+                                    setSelectedFlightIndex(index);
+                                    setDatePickerVisible(true);
+                                }}>
                                     <Icon name="calendar" size={16} color="#9095a0" style={styles.dateIcon} />
-                                    <Text style={styles.dateLabel}>{flight.date}</Text>
-                                </View>
+                                    <Text style={styles.dateLabel}>{flight.date.toDateString()}</Text>
+                                </TouchableOpacity>
                                 {index > 0 && (
                                     <TouchableOpacity onPress={() => removeFlight(index)}>
                                         <Icon name="trash" size={18} color="#ff4d4d" />
@@ -133,6 +143,13 @@ const MultiCitySearching = ({ navigation }) => {
                         updateFlight(selectedFlightIndex, 'to', temp);
                     }}
                     selectedInput={locationType} // Truyền loại địa điểm đã chọn
+                />
+
+                <DatePicker
+                    visible={datePickerVisible}
+                    onClose={() => setDatePickerVisible(false)}
+                    onSelect={handleDateSelect}
+                    departureDate={flights[selectedFlightIndex]?.date}
                 />
             </View>
         </FlightSearching>

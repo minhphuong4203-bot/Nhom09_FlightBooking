@@ -95,6 +95,15 @@ const DatePicker = ({ visible, onClose, onSelect, departureDate, returnDate, tri
         onClose();
     };
 
+    const getFooterText = () => {
+        if (tripType === 'one-way') {
+            return 'One Way';
+        } else if (tripType === 'round-trip') {
+            return 'Round Trip';
+        }
+        return 'Multi City';
+    };
+
     return (
         <Modal visible={visible} transparent onRequestClose={onClose}>
             <TouchableWithoutFeedback onPress={onClose}>
@@ -142,7 +151,7 @@ const DatePicker = ({ visible, onClose, onSelect, departureDate, returnDate, tri
                         {renderMonths()}
 
                         <View style={styles.footer}>
-                            <Text style={styles.footerText}>{tripType === 'one-way' ? 'One Way' : 'Round Trip'}</Text>
+                            <Text style={styles.footerText}>{getFooterText()}</Text>
                             <TouchableOpacity style={styles.doneButton} onPress={handleDonePress}>
                                 <Text style={styles.doneButtonText}>Done</Text>
                             </TouchableOpacity>
