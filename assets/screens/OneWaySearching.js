@@ -3,6 +3,7 @@ import { View, TextInput, StyleSheet, TouchableOpacity, Image, ScrollView, Text 
 import Icon from 'react-native-vector-icons/Ionicons';
 import FlightSearching from './FlightSearching';
 import LocationPickerModal from './LocationPickerModal';
+import DatePicker from './DateSelectionModel'; // Import your DatePicker component
 
 const locations = [
     { id: '1', city: 'New York, USA', description: 'City in New York State', airports: [{ name: 'John F.Kennedy International Airport', distance: '20 km to destination', code: 'JFK' }, { name: 'LaGuardia Airport', code: 'EWR', distance: '11 km to destination' }] },
@@ -13,6 +14,23 @@ const OneWaySearching = ({ navigation }) => {
     const [to, setTo] = useState('');
     const [isModalVisible, setModalVisible] = useState(false);
     const [selectedInput, setSelectedInput] = useState(null);
+    const [departureDate, setDepartureDate] = useState(new Date());
+    const [datePickerVisible, setDatePickerVisible] = useState(false);
+
+    const openDatePicker = () => {
+        setDatePickerVisible(true);
+    };
+
+    const handleDateSelect = (startDate, endDate) => {
+        if (endDate) {
+            // Round trip selected
+            setDepartureDate(startDate);
+            // Handle return date if needed
+        } else {
+            // One way selected
+            setDepartureDate(startDate);
+        }
+    };
 
     const handleSearch = () => {
         if (from && to) {
@@ -46,6 +64,12 @@ const OneWaySearching = ({ navigation }) => {
         setTo(temp);
     };
 
+    const formatDate = (date) => {
+        if (!date) return 'Select Date'; // Fallback if no date is selected
+        const options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' };
+        return date.toLocaleDateString('en-US', options);
+    };
+
     return (
         <FlightSearching navigation={navigation} defaultTab="One-way">
             <ScrollView style={styles.searchContainer}>
@@ -75,10 +99,10 @@ const OneWaySearching = ({ navigation }) => {
                     />
                 </TouchableOpacity>
                 <View style={styles.dateContainer}>
-                    <View style={styles.dateItem}>
-                        <Icon name="calendar" size={16} color="#9095a0" style={styles.dateIcon} />
-                        <Text style={styles.dateLabel}>Select Date</Text>
-                    </View>
+                    <TouchableOpacity onPress={openDatePicker} style={styles.dateItem}>
+                        <Icon name="calendar" size={16} color="#9095a0" />
+                        <Text style={styles.dateLabel}>{formatDate(departureDate)}</Text>
+                    </TouchableOpacity>
                 </View>
 
                 <TouchableOpacity style={styles.travelerContainer}>
@@ -97,6 +121,7 @@ const OneWaySearching = ({ navigation }) => {
                 </TouchableOpacity>
             </ScrollView>
 
+
             <LocationPickerModal
                 visible={isModalVisible}
                 onClose={closeLocationPicker}
@@ -107,6 +132,13 @@ const OneWaySearching = ({ navigation }) => {
                 to={to}
                 onSwap={handleSwap}
                 selectedInput={selectedInput}
+            />
+            <DatePicker
+                visible={datePickerVisible}
+                onClose={() => setDatePickerVisible(false)}
+                onSelect={handleDateSelect}
+                departureDate={departureDate}
+                tripType="one-way" // Specify trip type
             />
         </FlightSearching>
     );
@@ -165,6 +197,7 @@ const styles = StyleSheet.create({
     dateLabel: {
         fontSize: 16,
         color: '#9095a0',
+        marginLeft: 10,
     },
     swapContainer: {
         position: 'absolute',

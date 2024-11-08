@@ -133,6 +133,8 @@ const RoundTripSearching = ({ navigation, route }) => {
                 onSelect={handleDateSelect} // Updated function to handle both dates
                 departureDate={departureDate}
                 returnDate={returnDate}
+                tripType="round-trip" // Specify trip type
+
             />
         </FlightSearching>
     );

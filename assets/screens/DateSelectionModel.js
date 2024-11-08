@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, FlatList, TextInput, Modal, TouchableWithoutFeedback, Image } from 'react-native';
 
-const DatePicker = ({ visible, onClose, onSelect, departureDate, returnDate }) => {
+const DatePicker = ({ visible, onClose, onSelect, departureDate, returnDate, tripType }) => {
     const [selectedStartDate, setSelectedStartDate] = useState(departureDate || new Date());
     const [selectedEndDate, setSelectedEndDate] = useState(returnDate || new Date());
     const [isSelectingStartDate, setIsSelectingStartDate] = useState(true); // Track which date is being selected
@@ -112,28 +112,25 @@ const DatePicker = ({ visible, onClose, onSelect, departureDate, returnDate }) =
                             <TouchableOpacity onPress={() => handleDateInputPress(true)} style={styles.inputContainer}>
                                 <Image source={require('../images/Icon/airplane.png')} style={styles.airplaneImg} />
                                 <TextInput
-                                    style={[
-                                        styles.dateInput,
-                                        isSelectingStartDate ? styles.selectedInput : styles.defaultInput
-                                    ]}
+                                    style={styles.dateInput}
                                     value={formatDate(selectedStartDate)}
                                     placeholder="From"
                                     editable={false}
                                 />
                             </TouchableOpacity>
-                            <TouchableOpacity onPress={() => handleDateInputPress(false)} style={styles.inputContainer}>
-                                <Image source={require('../images/Icon/arrivals.png')} style={styles.airplaneImg} />
-                                <TextInput
-                                    style={[
-                                        styles.dateInput,
-                                        !isSelectingStartDate ? styles.selectedInput : styles.defaultInput
-                                    ]}
-                                    value={formatDate(selectedEndDate)}
-                                    placeholder="To"
-                                    editable={false}
-                                />
-                            </TouchableOpacity>
+                            {tripType === 'round-trip' && (
+                                <TouchableOpacity onPress={() => handleDateInputPress(false)} style={styles.inputContainer}>
+                                    <Image source={require('../images/Icon/arrivals.png')} style={styles.airplaneImg} />
+                                    <TextInput
+                                        style={styles.dateInput}
+                                        value={selectedEndDate ? formatDate(selectedEndDate) : ''}
+                                        placeholder="To"
+                                        editable={false}
+                                    />
+                                </TouchableOpacity>
+                            )}
                         </View>
+
                         <View style={styles.weekdayHeader}>
                             {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, index) => (
                                 <View key={`${day}-${index}`} style={styles.weekdayHeaderItem}>
@@ -145,7 +142,7 @@ const DatePicker = ({ visible, onClose, onSelect, departureDate, returnDate }) =
                         {renderMonths()}
 
                         <View style={styles.footer}>
-                            <Text style={styles.footerText}>Round Trip</Text>
+                            <Text style={styles.footerText}>{tripType === 'one-way' ? 'One Way' : 'Round Trip'}</Text>
                             <TouchableOpacity style={styles.doneButton} onPress={handleDonePress}>
                                 <Text style={styles.doneButtonText}>Done</Text>
                             </TouchableOpacity>
