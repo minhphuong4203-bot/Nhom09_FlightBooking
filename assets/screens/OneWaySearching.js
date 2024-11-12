@@ -139,7 +139,7 @@ const OneWaySearching = ({ navigation }) => {
                     <Icon name="chevron-down" size={16} color="#9095a0" style={{ position: 'absolute', right: 30 }} />
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.searchButton} onPress={handleSearch}>
+                <TouchableOpacity style={styles.searchButton} onPress={() => navigation.navigate('SearchResult')}>
                     <Text style={styles.searchButtonText}>Search flights</Text>
                 </TouchableOpacity>
             </ScrollView>

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, FlatList } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import SortFilterModal from './SortFilterModal'; // Import SortFilterModal component
+import FlightDetail from './FlightDetail';
 
 // Sample data for flights
 const flightData = [

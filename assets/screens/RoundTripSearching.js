@@ -137,7 +137,7 @@ const RoundTripSearching = ({ navigation, route }) => {
             </View>
 
             <TouchableOpacity style={styles.searchButton}>
-                <Text style={styles.searchButtonText}>Search flights</Text>
+                <Text style={styles.searchButtonText} onPress={() => navigation.navigate('SearchResult')}>Search flights</Text>
             </TouchableOpacity>
 
             <TravelOptions

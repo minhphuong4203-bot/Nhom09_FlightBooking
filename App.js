@@ -5,9 +5,11 @@ import RoundTripSearching from './assets/screens/RoundTripSearching';
 import OneWaySearching from './assets/screens/OneWaySearching';
 import MultiCitySearching from './assets/screens/MultiCitySearching';
 import Options from './assets/screens/FilterOtherOptions';
+import SearchResult from './assets/screens/SearchResult';
 
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
+import { FlightDetail } from './assets/screens/FlightDetail';
 
 const Stack = createStackNavigator();
 
@@ -35,9 +37,14 @@ export default function App() {
           component={MultiCitySearching}
           options={{ headerShown: false }}
         />
+        <Stack.Screen
+          name="SearchResult"
+          component={SearchResult}
+          options={{ headerShown: false }}
+        />
         {/* <Stack.Screen
-          name="Options"
-          component={Options}
+          name="FlightDetail"
+          component={FlightDetail}
           options={{ headerShown: false }}
         /> */}
       </Stack.Navigator>

@@ -3,10 +3,18 @@ import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-nati
 import Icon from 'react-native-vector-icons/Ionicons';
 
 const FlightDetails = ({ navigation, route }) => {
-    const { flightData } = route.params;
+    const flightData = route.params?.flightData ?? {};
+    const trip = flightData.trip || {};
+    const flights = Array.isArray(flightData.flights) ? flightData.flights : [];
+    const baggage = flightData.baggage || { included: '', extra: [] };
 
     const handleSelect = () => {
-        navigation.navigate('PassengerInformation', { flightData });
+        if (flightData) {
+            navigation.navigate('PassengerInformation', { flightData });
+        } else {
+            // Có thể hiển thị thông báo lỗi hoặc thông báo cho người dùng
+            alert('No flight data available.');
+        }
     };
 
     return (
@@ -25,43 +33,47 @@ const FlightDetails = ({ navigation, route }) => {
 
             {/* Trip Info */}
             <View style={styles.tripInfo}>
-                <Text style={styles.tripTitle}>Your trip to {flightData.trip.destination}</Text>
-                <Text style={styles.tripSubtitle}>from {flightData.trip.origin}</Text>
-                <Text style={styles.dateText}>{flightData.trip.dates}</Text>
-                <Text style={styles.detailsText}>{flightData.trip.travellers}</Text>
+                <Text style={styles.tripTitle}>Your trip to {trip.destination || 'N/A'}</Text>
+                <Text style={styles.tripSubtitle}>from {trip.origin || 'N/A'}</Text>
+                <Text style={styles.dateText}>{trip.dates || 'N/A'}</Text>
+                <Text style={styles.detailsText}>{trip.travellers || 'N/A'}</Text>
             </View>
 
             {/* Flight Details */}
-            {flightData.flights.map((flight, index) => (
-                <View key={index} style={styles.flightCard}>
-                    <View style={styles.flightSegment}>
-                        <Text style={styles.segmentTitle}>{flight.segment}</Text>
-                        <Text style={styles.airlineInfo}>{flight.airline}</Text>
-                        <Text style={styles.timeText}>{flight.time}</Text>
-                        <Text style={styles.stopText}>{flight.stops}</Text>
-                        {flight.details.map((detail, idx) => (
-                            <Text key={idx} style={styles.infoText}>{detail}</Text>
-                        ))}
+            {flights.length > 0 ? (
+                flights.map((flight, index) => (
+                    <View key={index} style={styles.flightCard}>
+                        <View style={styles.flightSegment}>
+                            <Text style={styles.segmentTitle}>{flight.segment || 'N/A'}</Text>
+                            <Text style={styles.airlineInfo}>{flight.airline || 'N/A'}</Text>
+                            <Text style={styles.timeText}>{flight.time || 'N/A'}</Text>
+                            <Text style={styles.stopText}>{flight.stops || 'N/A'}</Text>
+                            {Array.isArray(flight.details) && flight.details.map((detail, idx) => (
+                                <Text key={idx} style={styles.infoText}>{detail || 'N/A'}</Text>
+                            ))}
+                        </View>
+                        <TouchableOpacity>
+                            <Text style={styles.moreInfoText}>More info</Text>
+                        </TouchableOpacity>
                     </View>
-                    <TouchableOpacity>
-                        <Text style={styles.moreInfoText}>More info</Text>
-                    </TouchableOpacity>
-                </View>
-            ))}
+                ))
+            ) : (
+                <Text style={styles.noFlightsText}>No flight details available.</Text>
+            )}
 
             {/* Included Baggage */}
             <View style={styles.baggageSection}>
                 <Text style={styles.sectionTitle}>Included baggage</Text>
-                <Text style={styles.infoText}>{flightData.baggage.included}</Text>
+                <Text style={styles.infoText}>{baggage.included || 'N/A'}</Text>
                 <Text style={styles.includedText}>Included</Text>
             </View>
 
             {/* Extra Baggage */}
             <View style={styles.baggageSection}>
                 <Text style={styles.sectionTitle}>Extra baggage</Text>
-                {flightData.baggage.extra.map((item, idx) => (
+                {Array.isArray(baggage.extra) && baggage.extra.map((item, idx) => (
                     <Text key={idx} style={styles.extraBaggageText}>
-                        {item.type} - {item.price}
+                        {item.type || 'N/A'} - {item.price || 'N/A'}
                     </Text>
                 ))}
             </View>
@@ -69,7 +81,7 @@ const FlightDetails = ({ navigation, route }) => {
             {/* Total Price and Select Button */}
             <View style={styles.footer}>
                 <View>
-                    <Text style={styles.totalPrice}>${flightData.totalPrice}</Text>
+                    <Text style={styles.totalPrice}>${flightData.totalPrice || '0.00'}</Text>
                     <Text style={styles.totalPriceText}>Total price</Text>
                 </View>
                 <TouchableOpacity style={styles.selectButton} onPress={handleSelect}>
@@ -215,6 +227,12 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontSize: 16,
         fontWeight: 'bold',
+    },
+    noFlightsText: {
+        textAlign: 'center',
+        fontSize: 16,
+        color: '#999',
+        marginVertical: 20,
     },
 });
 
