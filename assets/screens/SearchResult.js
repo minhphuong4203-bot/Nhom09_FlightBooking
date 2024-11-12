@@ -1,43 +1,13 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, FlatList } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import SortFilterModal from './SortFilterModal';
+import SortFilterModal from './SortFilterModal'; // Import SortFilterModal component
 
 // Sample data for flights
 const flightData = [
-    {
-        id: '1',
-        departureTime: '6:30 AM',
-        arrivalTime: '2:00 PM',
-        from: 'LCY',
-        to: 'JFK',
-        airline: 'SkyHaven',
-        duration: '7h 30m',
-        stops: '1 stop',
-        price: '$806',
-    },
-    {
-        id: '2',
-        departureTime: '3:15 PM',
-        arrivalTime: '6:05 PM',
-        from: 'LCY',
-        to: 'JFK',
-        airline: 'CC Air',
-        duration: '7h 50m',
-        stops: 'Direct',
-        price: '$964',
-    },
-    {
-        id: '3',
-        departureTime: '3:15 PM',
-        arrivalTime: '7:50 PM',
-        from: 'LCY',
-        to: 'JFK',
-        airline: 'EcoWings',
-        duration: '7h 30m',
-        stops: 'Direct',
-        price: '$964',
-    },
+    { id: '1', departureTime: '6:30 AM', arrivalTime: '2:00 PM', from: 'LCY', to: 'JFK', airline: 'SkyHaven', duration: '7h 30m', stops: '1 stop', price: '$806' },
+    { id: '2', departureTime: '3:15 PM', arrivalTime: '6:05 PM', from: 'LCY', to: 'JFK', airline: 'CC Air', duration: '7h 50m', stops: 'Direct', price: '$964' },
+    { id: '3', departureTime: '3:15 PM', arrivalTime: '7:50 PM', from: 'LCY', to: 'JFK', airline: 'EcoWings', duration: '7h 30m', stops: 'Direct', price: '$964' },
     // Add more flights as needed
 ];
 
@@ -67,9 +37,35 @@ const FlightResult = ({ flight, navigation }) => (
 // Main component to render the flight search results
 const FlightResults = ({ navigation }) => {
     const [isSortFilterVisible, setSortFilterVisible] = useState(false);
+    const [filteredFlightData, setFilteredFlightData] = useState(flightData);
 
     const handleApplyFilters = (filters) => {
-        console.log(filters); // Handle filtering logic here with the applied filters
+        const { sortOption, stopOption, selectedAirlines } = filters;
+
+        // Filter based on stops and selected airlines
+        let filteredData = flightData.filter((flight) => {
+            const matchesStops =
+                stopOption === 'Any stops' ||
+                (stopOption === '1 stop or nonstop' && (flight.stops === '1 stop' || flight.stops === 'Direct')) ||
+                (stopOption === 'Nonstop only' && flight.stops === 'Direct');
+            
+            const matchesAirline = selectedAirlines.size === 0 || selectedAirlines.has(flight.airline);
+            return matchesStops && matchesAirline;
+        });
+
+        // Sort the filtered data based on the sort option
+        if (sortOption === 'Cheapest') {
+            filteredData.sort((a, b) => parseFloat(a.price.replace('$', '')) - parseFloat(b.price.replace('$', '')));
+        } else if (sortOption === 'Fastest') {
+            filteredData.sort((a, b) => {
+                const [hoursA, minutesA] = a.duration.split('h ').map(part => parseInt(part));
+                const [hoursB, minutesB] = b.duration.split('h ').map(part => parseInt(part));
+                return (hoursA * 60 + minutesA) - (hoursB * 60 + minutesB);
+            });
+        }
+
+        // Update the state with the filtered and sorted data
+        setFilteredFlightData(filteredData);
         setSortFilterVisible(false);
     };
 
@@ -86,7 +82,7 @@ const FlightResults = ({ navigation }) => {
 
             {/* Search Results List */}
             <FlatList
-                data={flightData}
+                data={filteredFlightData}
                 keyExtractor={(item) => item.id}
                 renderItem={({ item }) => <FlightResult flight={item} navigation={navigation} />}
             />
