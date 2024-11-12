@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, Modal, StyleSheet, FlatList, CheckBox } from 'react-native';
+import { View, Text, TouchableOpacity, Modal, StyleSheet, FlatList } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 
 const airlinesList = ['SkyHaven', 'EcoWings', 'CC Air', 'Fendi Air']; // Sample airlines
@@ -80,10 +80,7 @@ const SortFilterModal = ({ visible, onClose, onApply }) => {
                             onPress={() => toggleAirlineSelection(airline)}
                         >
                             <Text style={styles.optionText}>{airline}</Text>
-                            <CheckBox
-                                value={selectedAirlines.has(airline)}
-                                onValueChange={() => toggleAirlineSelection(airline)}
-                            />
+                            {selectedAirlines.has(airline) && <Icon name="checkmark" size={16} color="#6200ee" />}
                         </TouchableOpacity>
                     ))}
 
