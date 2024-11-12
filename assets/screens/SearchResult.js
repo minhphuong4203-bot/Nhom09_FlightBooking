@@ -5,12 +5,7 @@ import SortFilterModal from './SortFilterModal'; // Import SortFilterModal compo
 import FlightDetail from './FlightDetail';
 
 // Sample data for flights
-const flightData = [
-    { id: '1', departureTime: '6:30 AM', arrivalTime: '2:00 PM', from: 'LCY', to: 'JFK', airline: 'SkyHaven', duration: '7h 30m', stops: '1 stop', price: '$806' },
-    { id: '2', departureTime: '3:15 PM', arrivalTime: '6:05 PM', from: 'LCY', to: 'JFK', airline: 'CC Air', duration: '7h 50m', stops: 'Direct', price: '$964' },
-    { id: '3', departureTime: '3:15 PM', arrivalTime: '7:50 PM', from: 'LCY', to: 'JFK', airline: 'EcoWings', duration: '7h 30m', stops: 'Direct', price: '$964' },
-    // Add more flights as needed
-];
+const flightData = route.params.flightData || [];
 
 // Component to display each flight result
 const FlightResult = ({ flight, navigation }) => (
