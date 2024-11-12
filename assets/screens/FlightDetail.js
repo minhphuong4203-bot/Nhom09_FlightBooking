@@ -2,39 +2,8 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 
-const FlightDetails = ({ navigation }) => {
-    const flightData = {
-        totalPrice: 806,
-        trip: {
-            destination: 'New York',
-            origin: 'London',
-            dates: 'Fri, Jul 14 - Sun, Jul 17',
-            travellers: '1 traveller • Economy • Round-trip',
-        },
-        flights: [
-            {
-                segment: 'London - New York City',
-                airline: 'SkyHaven FD695',
-                time: '6:30 AM - 2:00 PM',
-                stops: '1 stop • 7h 30m',
-                details: ['28" seat pitch, Light meal', 'Chance of Wifi, No power outlet', 'No entertainment'],
-            },
-            {
-                segment: 'New York City - London',
-                airline: 'EcoWings FD695',
-                time: '10:00 PM - 10:15 AM',
-                stops: 'Direct • 9h 30m',
-                details: [],
-            },
-        ],
-        baggage: {
-            included: '1 personal item - Must go under the seat in front of you',
-            extra: [
-                { type: 'Carry-on', price: 'From $11.99' },
-                { type: 'Checked bag', price: 'From $19.99' },
-            ],
-        },
-    };
+const FlightDetails = ({ navigation, route }) => {
+    const { flightData } = route.params;
 
     const handleSelect = () => {
         navigation.navigate('PassengerInformation', { flightData });

@@ -42,8 +42,11 @@ const flightData = [
 ];
 
 // Component to display each flight result
-const FlightResult = ({ flight }) => (
-    <View style={styles.resultContainer}>
+const FlightResult = ({ flight, navigation }) => (
+    <TouchableOpacity
+        style={styles.resultContainer}
+        onPress={() => navigation.navigate('FlightDetail', { flightData: flight })}
+    >
         <View style={styles.flightInfo}>
             <Text style={styles.timeText}>{flight.departureTime} - {flight.arrivalTime}</Text>
             <Text style={styles.airlineText}>{flight.airline}</Text>
@@ -58,7 +61,7 @@ const FlightResult = ({ flight }) => (
             <Text style={styles.stopsText}>{flight.stops}</Text>
         </View>
         <Text style={styles.priceText}>{flight.price}</Text>
-    </View>
+    </TouchableOpacity>
 );
 
 // Main component to render the flight search results
@@ -85,7 +88,7 @@ const FlightResults = ({ navigation }) => {
             <FlatList
                 data={flightData}
                 keyExtractor={(item) => item.id}
-                renderItem={({ item }) => <FlightResult flight={item} />}
+                renderItem={({ item }) => <FlightResult flight={item} navigation={navigation} />}
             />
 
             {/* Back Button */}
