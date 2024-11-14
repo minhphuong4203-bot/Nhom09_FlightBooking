@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import firestore from '@react-native-firebase/firestore';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, FlatList, StyleSheet, TouchableOpacity, Image, SafeAreaView } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 
@@ -31,9 +32,27 @@ const data = [
 
 const StartScreen = ({ navigation }) => {
     const [searchText, setSearchText] = useState('');
+    const [cities, setCities] = useState([]);
 
-    const filteredDestinations = data.filter(destination =>
-        destination.name.toLowerCase().includes(searchText.toLowerCase())
+    useEffect(() => {
+        const fetchCities = async () => {
+            try {
+                const snapshot = await firestore().collection('city').get();
+                const citiesData = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+                setCities(citiesData); // Update state with fetched data
+            } catch (error) {
+                console.error("Error fetching cities: ", error);
+            }
+        };
+
+        fetchCities();
+    }, []);
+
+    const filteredCities = cities.filter(city =>
+        city.name.toLowerCase().includes(searchText.toLowerCase())
     );
 
     const handleDestinationPress = (destination) => {
@@ -46,9 +65,9 @@ const StartScreen = ({ navigation }) => {
 
     const renderDestinationItem = ({ item }) => (
         <TouchableOpacity style={styles.destinationItem} onPress={() => handleDestinationPress(item)}>
-            <Image source={item.image} style={styles.destinationImage} />
+            <Image source={{ uri: item.image }} style={styles.destinationImage} /> {/* Adjust based on your data structure */}
             <Text style={styles.destinationName}>{item.name}</Text>
-            <Text style={styles.destinationPrice}>{item.price}</Text>
+            <Text style={styles.destinationPrice}>{item.desc}</Text> {/* Adjust according to your data */}
         </TouchableOpacity>
     );
 
@@ -84,7 +103,7 @@ const StartScreen = ({ navigation }) => {
                 </TouchableOpacity>
                 <Text style={styles.sectionTitle}>The best cities for you</Text>
                 <FlatList
-                    data={filteredDestinations}
+                    data={filteredCities} // Use filteredCities instead of filteredDestinations
                     keyExtractor={(item) => item.id.toString()}
                     renderItem={renderDestinationItem}
                     horizontal
