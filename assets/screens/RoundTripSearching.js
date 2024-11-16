@@ -1,302 +1,229 @@
 import React, { useState } from 'react';
-import { View, TextInput, StyleSheet, TouchableOpacity, Image, Text } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, FlatList } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import FlightSearching from './FlightSearching';
-import LocationPickerModal from './LocationPickerModal';
-import DatePicker from './DateSelectionModel'; // Import your DatePicker component
-import TravelOptions from './FilterOtherOptions'; // Import your TravelOptions component
+import SortFilterModal from './SortFilterModal';
+import FlightDetails from './FlightDetail';
 
+const FlightResult = ({ flight, navigation }) => (
+    <TouchableOpacity
+        style={styles.resultContainer}
+        onPress={() => navigation.navigate('FlightDetail', { flightData: flight })} // Correct screen name
+    >
+        <View style={styles.flightInfo}>
+            <Text style={styles.timeText}>{flight.departureTime} - {flight.arrivalTime}</Text>
+            <Text style={styles.airlineText}>{flight.airline}</Text>
+        </View>
+        <View style={styles.routeInfo}>
+            <Text style={styles.airportCode}>{flight.from}</Text>
+            <Icon name="arrow-forward" size={16} color="#000" />
+            <Text style={styles.airportCode}>{flight.to}</Text>
+        </View>
+        <View style={styles.details}>
+            <Text style={styles.durationText}>{flight.duration}</Text>
+            <Text style={styles.stopsText}>{flight.stops}</Text>
+        </View>
+        <Text style={styles.priceText}>{flight.price}</Text>
+    </TouchableOpacity>
+);
 
-const RoundTripSearching = ({ navigation, route }) => {
-    const [isModalVisible, setModalVisible] = useState(false);
-    const [isDatePickerVisible, setDatePickerVisible] = useState(false);
-    const [selectedInput, setSelectedInput] = useState(null);
-    const [from, setFrom] = useState('');
-    const [to, setTo] = useState('');
-    const [departureDate, setDepartureDate] = useState(null); // Start with null
-    const [returnDate, setReturnDate] = useState(null); // Start with null
+const FlightResults = ({ route, navigation }) => {
+    const sampleFlightData = [
+        {
+            id: '1',
+            departureTime: '08:00 AM',
+            arrivalTime: '10:00 AM',
+            airline: 'Airline A',
+            from: 'JFK',
+            to: 'LAX',
+            duration: '6h 0m',
+            stops: 'Direct',
+            price: '$300',
+        },
+        {
+            id: '2',
+            departureTime: '09:00 AM',
+            arrivalTime: '11:30 AM',
+            airline: 'Airline B',
+            from: 'JFK',
+            to: 'LAX',
+            duration: '5h 30m',
+            stops: '1 stop',
+            price: '$250',
+        },
+        {
+            id: '3',
+            departureTime: '10:00 AM',
+            arrivalTime: '12:00 PM',
+            airline: 'Airline C',
+            from: 'JFK',
+            to: 'LAX',
+            duration: '6h 0m',
+            stops: 'Direct',
+            price: '$280',
+        },
+    ];
 
-    const [isTravelOptionsVisible, setTravelOptionsVisible] = useState(false);
-    const [travelerData, setTravelerData] = useState({
-        adults: 0,
-        children: 0,
-        infants: 0,
-        cabinClass: 'Economy',
-    });
+    const flightData = (route && route.params && route.params.flightData) || sampleFlightData;
+    const [isSortFilterVisible, setSortFilterVisible] = useState(false);
+    const [filteredFlightData, setFilteredFlightData] = useState(flightData);
 
-    const openTravelOptions = () => {
-        setTravelOptionsVisible(true);
-    };
+    const handleApplyFilters = (filters) => {
+        const { sortOption, stopOption, selectedAirlines } = filters;
 
-    const closeTravelOptions = () => {
-        setTravelOptionsVisible(false);
-    };
+        let filteredData = flightData.filter((flight) => {
+            const matchesStops =
+                stopOption === 'Any stops' ||
+                (stopOption === '1 stop or nonstop' && (flight.stops === '1 stop' || flight.stops === 'Direct')) ||
+                (stopOption === 'Nonstop only' && flight.stops === 'Direct');
 
-    const handleTravelOptionsSelect = (data) => {
-        setTravelerData(data);
-        closeTravelOptions();
-    };
-    const totalTravelers = travelerData.adults + travelerData.children + travelerData.infants;
+            const matchesAirline = selectedAirlines.size === 0 || selectedAirlines.has(flight.airline);
+            return matchesStops && matchesAirline;
+        });
 
-    const openLocationPicker = (inputType) => {
-        setSelectedInput(inputType);
-        setModalVisible(true);
-    };
-
-    const closeLocationPicker = () => {
-        setModalVisible(false);
-    };
-
-    const handleLocationSelect = (location) => {
-        if (selectedInput === 'from') {
-            setFrom(location);
-        } else if (selectedInput === 'to') {
-            setTo(location);
+        if (sortOption === 'Cheapest') {
+            filteredData.sort((a, b) => parseFloat(a.price.replace('$', '')) - parseFloat(b.price.replace('$', '')));
+        } else if (sortOption === 'Fastest') {
+            filteredData.sort((a, b) => {
+                const [hoursA, minutesA] = a.duration.split('h ').map(part => parseInt(part));
+                const [hoursB, minutesB] = b.duration.split('h ').map(part => parseInt(part));
+                return (hoursA * 60 + minutesA) - (hoursB * 60 + minutesB);
+            });
         }
-        closeLocationPicker();
-    };
 
-    const handleSwap = () => {
-        const temp = from;
-        setFrom(to);
-        setTo(temp);
-    };
-
-    const openDatePicker = () => {
-        setDatePickerVisible(true);
-    };
-
-    const handleDateSelect = (newDepartureDate, newReturnDate) => {
-        // If the user only selects one date, set the other to null
-        setDepartureDate(newDepartureDate);
-        if (newReturnDate) {
-            setReturnDate(newReturnDate);
-        }
-        setDatePickerVisible(false);
-    };
-
-    const formatDate = (date) => {
-        if (!date) return 'Select Date'; // Fallback if no date is selected
-        const options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' };
-        return date.toLocaleDateString('en-US', options);
+        setFilteredFlightData(filteredData);
+        setSortFilterVisible(false);
     };
 
     return (
-        <FlightSearching navigation={navigation} defaultTab="Round-trip">
-            <View style={styles.searchContainer}>
-                <TouchableOpacity onPress={() => openLocationPicker('from')} style={styles.searchInputContainer}>
-                    <Image source={require('../images/Icon/airplane.png')} style={styles.airplaneImg} />
-                    <TextInput
-                        style={[styles.searchInput, from ? styles.selectedInput : null]}
-                        placeholder="From"
-                        placeholderTextColor="#9095a0"
-                        value={from}
-                        editable={false}
-                    />
+        <View style={styles.container}>
+            <View style={styles.topButtonsContainer}>
+                <TouchableOpacity
+                    style={styles.backButton}
+                    onPress={() => navigation.goBack()}
+                >
+                    <Icon name="arrow-back" size={24} color="#fff" />
+                    <Text style={styles.backText}>Back</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.swapContainer} onPress={handleSwap}>
-                    <Icon name="swap-vertical" size={24} color="#000" />
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => openLocationPicker('to')} style={styles.searchInputContainer}>
-                    <Image source={require('../images/Icon/arrivals.png')} style={styles.airplaneImg} />
-                    <TextInput
-                        style={[styles.searchInput, to ? styles.selectedInput : null]}
-                        placeholder="To"
-                        placeholderTextColor="#9095a0"
-                        value={to}
-                        editable={false}
-                    />
-                </TouchableOpacity>
-                <View style={styles.dateContainer}>
-                    <TouchableOpacity onPress={openDatePicker} style={styles.dateItem}>
-                        <Icon name="calendar" size={16} color="#9095a0" style={styles.dateIcon} />
-                        <Text style={styles.dateLabel}>{formatDate(departureDate)}</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={openDatePicker} style={styles.dateItem}>
-                        <Icon name="calendar" size={16} color="#9095a0" style={styles.dateIcon} />
-                        <Text style={styles.dateLabel}>{formatDate(returnDate)}</Text>
-                    </TouchableOpacity>
-                </View>
 
-                <TouchableOpacity style={styles.travelerContainer} onPress={openTravelOptions}>
-                    <View style={styles.travelerContent}>
-                        <Icon name="person" size={16} color="#9095a0" style={styles.travelerIcon} />
-                        <Text style={styles.travelerLabel}>
-                            {`${totalTravelers} traveller`}
-                        </Text>
-                        <Text style={styles.dotSeparator}> • </Text>
-                        <Icon name="airplane" size={16} color="#9095a0" style={styles.travelerIcon} />
-                        <Text style={styles.travelerLabel}>{travelerData.cabinClass}</Text>
-                    </View>
-                    <Icon name="chevron-down" size={16} color="#9095a0" style={{ position: 'absolute', right: 30 }} />
+                <TouchableOpacity
+                    style={styles.sortFilterButton}
+                    onPress={() => setSortFilterVisible(true)}
+                >
+                    <Text style={styles.sortFilterButtonText}>Sort & Filter</Text>
+                    <Icon name="funnel-outline" size={20} color="#fff" />
                 </TouchableOpacity>
             </View>
 
-            <TouchableOpacity style={styles.searchButton}>
-                <Text style={styles.searchButtonText} onPress={() => navigation.navigate('SearchResult')}>Search flight</Text>
-            </TouchableOpacity>
-
-            <TravelOptions
-                visible={isTravelOptionsVisible}
-                onClose={closeTravelOptions}
-                onSelect={handleTravelOptionsSelect}
-                initialData={travelerData}
-                tripType="round-trip" // Specify trip type
-
+            <FlatList
+                data={filteredFlightData}
+                keyExtractor={(item) => item.id}
+                renderItem={({ item }) => <FlightResult flight={item} navigation={navigation} />}
             />
 
-
-            <LocationPickerModal
-                visible={isModalVisible}
-                onClose={closeLocationPicker}
-                onSelect={handleLocationSelect}
-                title={`Where ${selectedInput === 'from' ? 'from?' : 'to?'}`}
-                from={from}
-                to={to}
-                onSwap={handleSwap}
-                selectedInput={selectedInput}
+            <SortFilterModal
+                visible={isSortFilterVisible}
+                onClose={() => setSortFilterVisible(false)}
+                onApply={handleApplyFilters}
             />
-
-            <DatePicker
-                visible={isDatePickerVisible}
-                onClose={() => setDatePickerVisible(false)}
-                onSelect={handleDateSelect} // Updated function to handle both dates
-                departureDate={departureDate}
-                returnDate={returnDate}
-                tripType="round-trip" // Specify trip type
-
-            />
-        </FlightSearching>
+        </View>
     );
+
 };
 
+// Styles remain the same
 const styles = StyleSheet.create({
-    searchContainer: {
-        padding: 16,
-        paddingBottom: 80,
-        borderTopWidth: 1,
-        borderTopColor: '#f0f0f0',
-    },
-    searchInputContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        borderWidth: 1,
-        borderColor: '#ccc',
-        borderRadius: 8,
-        height: 54,
-        paddingHorizontal: 12,
-        backgroundColor: '#f3f4f6',
-        marginVertical: 2,
-    },
-    searchInput: {
+    container: {
         flex: 1,
-        height: '100%',
-        fontSize: 16,
-        backgroundColor: 'transparent',
+        backgroundColor: '#f9f9f9',
     },
-    selectedInput: {
-        color: '#000',
-    },
-    airplaneImg: {
-        width: 20,
-        height: 20,
-        marginLeft: 6,
-        marginRight: 12,
-    },
-    dateContainer: {
+    topButtonsContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        marginVertical: 8,
-        marginTop: 16,
+        alignItems: 'center',
+        paddingHorizontal: 16,
+        paddingTop: 20,
+        paddingBottom: 10,
     },
-    dateItem: {
+    backButton: {
         flexDirection: 'row',
         alignItems: 'center',
         paddingVertical: 8,
         paddingHorizontal: 12,
-        borderWidth: 1,
-        borderColor: '#ccc',
-        borderRadius: 8,
-        width: '48%',
-        height: 54,
-        backgroundColor: '#f3f4f6',
-    },
-    dateIcon: {
-        marginRight: 8,
-        fontSize: 16,
-    },
-    dateLabel: {
-        fontSize: 16,
-        color: '#000',
-    },
-    travelerContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        borderTopWidth: 1,
-        borderBottomWidth: 1,
-        borderColor: '#ccc',
-        height: 54,
-        paddingHorizontal: 12,
-        backgroundColor: '#f3f4f6',
-        marginVertical: 8,
-        width: '110%',
-        marginLeft: -16,
-        marginTop: 20,
-    },
-    swapContainer: {
-        position: 'absolute',
-        justifyContent: 'center',
-        alignItems: 'center',
-        top: 48,
-        left: '90%',
-        marginLeft: -35,
-        zIndex: 1,
-        backgroundColor: '#f3f4f6',
-        borderRadius: 25,
-        padding: 10,
-        elevation: 3,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.3,
-        shadowRadius: 4,
-        borderColor: '#fff',
-        borderWidth: 1,
-    },
-    travelerContent: {
-        position: 'absolute',
-        left: 24,
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    travelerIcon: {
-        marginRight: 4,
-        marginLeft: 6,
-    },
-    travelerLabel: {
-        fontSize: 14,
-        color: '#767a81',
-    },
-    dotSeparator: {
-        fontSize: 24,
-        color: '#9095a0',
-        marginHorizontal: 4,
-        marginLeft: 6,
-    },
-    searchButton: {
-        position: 'absolute',
-        bottom: 50,
-        left: 20,
         backgroundColor: '#00bdd6',
-        paddingVertical: 14,
-        borderRadius: 8,
-        width: '90%',
+        borderRadius: 20,
     },
-    searchButtonText: {
+    backText: {
+        color: '#fff',
+        marginLeft: 4,
+    },
+    sortFilterButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#00bdd6',
+        paddingVertical: 8,
+        paddingHorizontal: 12,
+        borderRadius: 20,
+    },
+    sortFilterButtonText: {
         color: '#fff',
         fontSize: 16,
         fontWeight: 'bold',
-        textAlign: 'center',
+        marginRight: 8,
+    },
+    resultContainer: {
+        backgroundColor: '#fff',
+        marginVertical: 8,
+        marginHorizontal: 16,
+        padding: 16,
+        borderRadius: 8,
+        shadowColor: '#000',
+        shadowOpacity: 0.1,
+        shadowRadius: 5,
+        elevation: 3,
+    },
+    flightInfo: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginBottom: 8,
+    },
+    timeText: {
+        fontSize: 16,
+        fontWeight: '600',
+    },
+    airlineText: {
+        fontSize: 14,
+        color: '#767a81',
+    },
+    routeInfo: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 8,
+    },
+    airportCode: {
+        fontSize: 14,
+        fontWeight: 'bold',
+        marginHorizontal: 4,
+    },
+    details: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginBottom: 8,
+    },
+    durationText: {
+        fontSize: 14,
+        color: '#767a81',
+    },
+    stopsText: {
+        fontSize: 14,
+        color: '#767a81',
+    },
+    priceText: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#00bdd6',
     },
 });
 
-export default RoundTripSearching;
+
+
+export default FlightResults;

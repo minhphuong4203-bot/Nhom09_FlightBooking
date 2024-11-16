@@ -44,7 +44,7 @@ const StartScreen = ({ navigation }) => {
                 }));
                 setCities(citiesData); // Update state with fetched data
             } catch (error) {
-                console.error("Error fetching cities: ", error);
+                console.log("Error fetching cities: ", error);
             }
         };
 

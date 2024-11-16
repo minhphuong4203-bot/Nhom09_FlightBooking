@@ -24,7 +24,7 @@ const SummaryScreen = ({ navigation, route }) => {
             });
             navigation.navigate('Home');
         } catch (error) {
-            console.error('Error saving booking:', error);
+            console.log('Error saving booking:', error);
         }
     };
 
