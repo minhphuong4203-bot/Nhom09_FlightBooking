@@ -1,9 +1,44 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import { View, Text, Modal, TouchableOpacity, FlatList, StyleSheet, TextInput, Image } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import firestore from '@react-native-firebase/firestore';
 
-const LocationPickerModal = ({ visible, onClose, onSelect, locations, title, from, to, onSwap, selectedInput }) => {
+// const locations = [
+//     { id: '1', city: 'London, United Kingdom', description: 'Capital of England', airports: [{ name: 'London City Airport', distance: '20 km to destination', code: 'LCY' }, { name: 'Heathrow Airport', code: 'LHR', distance: '13 km to destination' }] },
+//     { id: '2', city: 'Ontario, Canada', description: 'City in Ontario, Canada', airports: [{ name: 'London Airport', distance: '30 km to destination', code: 'YXU' }] },
+// ];
+
+const LocationPickerModal = ({ visible, onClose, onSelect, title, from, to, onSwap, selectedInput }) => {
     const [expandedLocations, setExpandedLocations] = useState([]);
+
+    const [locations, setLocations] = useState([]);
+
+    useEffect(() => {
+        const fetchLocations = async () => {
+            try {
+                const citiesSnapshot = await firestore().collection('city').get();
+                const locationData = await Promise.all(
+                    citiesSnapshot.docs.map(async (doc) => {
+                        const airportsSnapshot = await firestore().collection('city').doc(doc.id).collection('airport').get();
+                        const airports = airportsSnapshot.docs.map((airportDoc) => ({
+                            id: airportDoc.id,
+                            ...airportDoc.data(),
+                        }));
+                        return {
+                            id: doc.id,
+                            ...doc.data(),
+                            airports,
+                        };
+                    })
+                );
+                setLocations(locationData);
+            } catch (error) {
+                console.log('Error fetching locations:', error);
+            }
+        };
+
+        fetchLocations();
+    }, [visible]);
 
     const toggleLocationExpansion = (locationId) => {
         if (expandedLocations.includes(locationId)) {
@@ -19,8 +54,8 @@ const LocationPickerModal = ({ visible, onClose, onSelect, locations, title, fro
                 <TouchableOpacity style={styles.locationItem} onPress={() => toggleLocationExpansion(item.id)}>
                     <Image source={require('../images/Icon/location.png')} style={styles.locationIcon} />
                     <View>
-                        <Text style={styles.locationCity}>{item.city}</Text>
-                        <Text style={styles.locationDescription}>{item.description}</Text>
+                        <Text style={styles.locationCity}>{item.name}</Text>
+                        <Text style={styles.locationDescription}>{item.desc}</Text>
                     </View>
                     <Icon name={expandedLocations.includes(item.id) ? 'chevron-up' : 'chevron-down'} size={20} color="#000" style={{ position: 'absolute', right: 0 }} />
                 </TouchableOpacity>
@@ -133,8 +168,7 @@ const styles = StyleSheet.create({
     headerContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 20,
-        marginTop: 20,
+
         marginBottom: 30,
     },
     modalTitle: {

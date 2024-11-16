@@ -6,14 +6,14 @@ import LocationPickerModal from './LocationPickerModal'; // Import modal
 import DatePicker from './DateSelectionModel'; // Import your date picker
 import TravelOptions from './FilterOtherOptions'; // Import travel options
 
-const locations = [
-    { id: '1', city: 'New York', description: 'NYC, USA', airports: [{ name: 'JFK Airport', distance: '30 km', code: 'JFK' }] },
-    { id: '2', city: 'Los Angeles', description: 'LA, USA', airports: [{ name: 'LAX Airport', distance: '20 km', code: 'LAX' }] },
+// const locations = [
+//     { id: '1', city: 'New York', description: 'NYC, USA', airports: [{ name: 'JFK Airport', distance: '30 km', code: 'JFK' }] },
+//     { id: '2', city: 'Los Angeles', description: 'LA, USA', airports: [{ name: 'LAX Airport', distance: '20 km', code: 'LAX' }] },
 
-    { id: '3', city: 'Ontario, Canada', description: 'City in Ontario, Canada', airports: [{ name: 'London Airport', distance: '30 km to destination', code: 'YXU' }] },
+//     { id: '3', city: 'Ontario, Canada', description: 'City in Ontario, Canada', airports: [{ name: 'London Airport', distance: '30 km to destination', code: 'YXU' }] },
 
-    // Thêm địa điểm khác tại đây
-];
+//     // Thêm địa điểm khác tại đây
+// ];
 
 const MultiCitySearching = ({ navigation }) => {
     const defaultFlights = [
@@ -166,7 +166,6 @@ const MultiCitySearching = ({ navigation }) => {
                     visible={modalVisible}
                     onClose={() => setModalVisible(false)}
                     onSelect={handleLocationSelect}
-                    locations={locations}
                     title="Select Location"
                     from={flights[selectedFlightIndex]?.from} // Truyền giá trị "from"
                     to={flights[selectedFlightIndex]?.to} // Truyền giá trị "to"

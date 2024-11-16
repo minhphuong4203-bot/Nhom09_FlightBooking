@@ -6,10 +6,6 @@ import LocationPickerModal from './LocationPickerModal';
 import DatePicker from './DateSelectionModel'; // Import your DatePicker component
 import TravelOptions from './FilterOtherOptions'; // Import your TravelOptions component
 
-const locations = [
-    { id: '1', city: 'London, United Kingdom', description: 'Capital of England', airports: [{ name: 'London City Airport', distance: '20 km to destination', code: 'LCY' }, { name: 'Heathrow Airport', code: 'LHR', distance: '13 km to destination' }] },
-    { id: '2', city: 'Ontario, Canada', description: 'City in Ontario, Canada', airports: [{ name: 'London Airport', distance: '30 km to destination', code: 'YXU' }] },
-];
 
 const RoundTripSearching = ({ navigation, route }) => {
     const [isModalVisible, setModalVisible] = useState(false);
@@ -137,7 +133,7 @@ const RoundTripSearching = ({ navigation, route }) => {
             </View>
 
             <TouchableOpacity style={styles.searchButton}>
-                <Text style={styles.searchButtonText} onPress={() => navigation.navigate('SearchResult')}>Search flights</Text>
+                <Text style={styles.searchButtonText} onPress={() => navigation.navigate('SearchResult')}>Search flight</Text>
             </TouchableOpacity>
 
             <TravelOptions
@@ -154,7 +150,6 @@ const RoundTripSearching = ({ navigation, route }) => {
                 visible={isModalVisible}
                 onClose={closeLocationPicker}
                 onSelect={handleLocationSelect}
-                locations={locations}
                 title={`Where ${selectedInput === 'from' ? 'from?' : 'to?'}`}
                 from={from}
                 to={to}

@@ -6,9 +6,9 @@ import LocationPickerModal from './LocationPickerModal';
 import DatePicker from './DateSelectionModel'; // Import your DatePicker component
 import TravelOptions from './FilterOtherOptions';
 
-const locations = [
-    { id: '1', city: 'New York, USA', description: 'City in New York State', airports: [{ name: 'John F.Kennedy International Airport', distance: '20 km to destination', code: 'JFK' }, { name: 'LaGuardia Airport', code: 'EWR', distance: '11 km to destination' }] },
-];
+// const locations = [
+//     { id: '1', city: 'New York, USA', description: 'City in New York State', airports: [{ name: 'John F.Kennedy International Airport', distance: '20 km to destination', code: 'JFK' }, { name: 'LaGuardia Airport', code: 'EWR', distance: '11 km to destination' }] },
+// ];
 
 const OneWaySearching = ({ navigation }) => {
     const [from, setFrom] = useState('');
@@ -156,7 +156,6 @@ const OneWaySearching = ({ navigation }) => {
                 visible={isModalVisible}
                 onClose={closeLocationPicker}
                 onSelect={handleLocationSelect}
-                locations={locations}  // Kiểm tra xem locations có dữ liệu không
                 title={`Where ${selectedInput === 'from' ? 'from?' : 'to?'}`}
                 from={from}
                 to={to}
