@@ -57,8 +57,8 @@ const TravelOptions = ({ visible, onClose, onSelect, tripType }) => {
 
     return (
         <Modal style={styles.container} visible={visible} >
-            <View style={styles.subContainer}>
                 <View style={styles.backgroundContainer} />
+            <View style={styles.subContainer}>
                 <View style={styles.headerContainer}>
                     <Text style={styles.headerTitle}>Options</Text>
                     <TouchableOpacity style={styles.closeButton} onPress={onClose}>
@@ -147,9 +147,12 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#fff',
+        // marginTop: 20,
     },
     backgroundContainer: {
-        height: 80, // Chiều cao khoảng trống mờ
+        // position: 'absolute',
+        top:0,
+        height: 60, // Chiều cao khoảng trống mờ
         backgroundColor: 'rgba(0, 0, 0, 0.2)', // Màu nền mờ
     },
     headerContainer: {
@@ -159,7 +162,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingVertical: 12,
         paddingHorizontal: 16,
-        marginTop: 30,
+        marginTop: 20,
     },
     headerTitle: {
         position: 'absolute',
