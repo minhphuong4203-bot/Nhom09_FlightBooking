@@ -17,8 +17,8 @@ import TravelOptions from './FilterOtherOptions'; // Import travel options
 
 const MultiCitySearching = ({ navigation }) => {
     const defaultFlights = [
-        { from: '', to: '', date: new Date() },
-        { from: '', to: '', date: new Date() },
+        { from: '', to: '', date: new Date(), fromCity: '', toCity: '' }, // Add fromCity and toCity
+        { from: '', to: '', date: new Date(), fromCity: '', toCity: '' },
     ];
     const [flights, setFlights] = useState(defaultFlights);
     const [modalVisible, setModalVisible] = useState(false);
@@ -70,18 +70,40 @@ const MultiCitySearching = ({ navigation }) => {
         setModalVisible(true);
     };
 
-    const handleLocationSelect = (location) => {
-        if (locationType === 'from') {
-            updateFlight(selectedFlightIndex, 'from', location);
-        } else {
-            updateFlight(selectedFlightIndex, 'to', location);
-        }
-        setModalVisible(false);
-    };
+const handleLocationSelect = (location) => {
+    if (locationType === 'fromCity') {
+        updateFlight(selectedFlightIndex, 'from', location.path); // Update the path for "from"
+        updateFlight(selectedFlightIndex, 'fromCity', location.city); // Update the city name for "from"
+    } else if (locationType === 'toCity') {
+        updateFlight(selectedFlightIndex, 'to', location.path); // Update the path for "to"
+        updateFlight(selectedFlightIndex, 'toCity', location.city); // Update the city name for "to"
+    }
+    setModalVisible(false);
+};
 
     const handleDateSelect = (date) => {
         updateFlight(selectedFlightIndex, 'date', date);
         setDatePickerVisible(false);
+    };
+
+    const handleSearchFlights = () => {
+        const flightParams = flights.map(flight => {
+            const departureDateString = flight.date ?
+                new Date(Date.UTC(flight.date.getUTCFullYear(), flight.date.getUTCMonth(), flight.date.getUTCDate() + 1)).toISOString() : null;
+
+            return {
+                from: flight.from,
+                to: flight.to,
+                departureDate: departureDateString, // Use the processed date string
+                type: 'one-way', // Specify trip type
+            };
+        });
+
+        // Navigate to SearchResult with flight parameters
+        navigation.navigate('SearchResult', {
+            flights: flightParams,
+            travelerData: travelerData,
+        });
     };
 
 
@@ -93,23 +115,23 @@ const MultiCitySearching = ({ navigation }) => {
                         <View key={index} style={styles.flightContainer}>
                             <Text style={styles.flightTitle}>Flight {index + 1}</Text>
                             <View style={styles.flightRowContainer}>
-                                <TouchableOpacity style={styles.flightInputContainer} onPress={() => openLocationPicker(index, 'from')}>
+                                <TouchableOpacity style={styles.flightInputContainer} onPress={() => openLocationPicker(index, 'fromCity')}>
                                     <Image source={require('../images/Icon/airplane.png')} style={styles.airplaneImg} />
                                     <TextInput
-                                        style={[styles.flightInput, flight.from ? styles.selectedInputText : styles.placeholderText]}
+                                        style={[styles.flightInput, flight.fromCity ? styles.selectedInputText : styles.placeholderText]}
                                         placeholder="From"
                                         placeholderTextColor="#9095a0"
-                                        value={flight.from}
+                                        value={flight.fromCity}
                                         editable={false} // Không cho phép nhập trực tiếp
                                     />
                                 </TouchableOpacity>
-                                <TouchableOpacity style={styles.flightInputContainer} onPress={() => openLocationPicker(index, 'to')}>
+                                <TouchableOpacity style={styles.flightInputContainer} onPress={() => openLocationPicker(index, 'toCity')}>
                                     <Image source={require('../images/Icon/arrivals.png')} style={styles.airplaneImg} />
                                     <TextInput
-                                        style={[styles.flightInput, flight.to ? styles.selectedInputText : styles.placeholderText]}
+                                        style={[styles.flightInput, flight.toCity ? styles.selectedInputText : styles.placeholderText]}
                                         placeholder="To"
                                         placeholderTextColor="#9095a0"
-                                        value={flight.to}
+                                        value={flight.toCity}
                                         editable={false} // Không cho phép nhập trực tiếp
                                     />
                                 </TouchableOpacity>
@@ -148,8 +170,8 @@ const MultiCitySearching = ({ navigation }) => {
                     </TouchableOpacity>
                 </ScrollView>
 
-                <TouchableOpacity style={styles.searchButton}>
-                    <Text style={styles.searchButtonText} onPress={() => navigation.navigate('SearchResult')}>Search flights</Text>
+                <TouchableOpacity style={styles.searchButton} onPress={handleSearchFlights}>
+                    <Text style={styles.searchButtonText} >Search flights</Text>
                 </TouchableOpacity>
 
                 <TravelOptions
@@ -167,12 +189,12 @@ const MultiCitySearching = ({ navigation }) => {
                     onClose={() => setModalVisible(false)}
                     onSelect={handleLocationSelect}
                     title="Select Location"
-                    from={flights[selectedFlightIndex]?.from} // Truyền giá trị "from"
-                    to={flights[selectedFlightIndex]?.to} // Truyền giá trị "to"
+                    from={flights[selectedFlightIndex]?.fromCity} // Truyền giá trị "from"
+                    to={flights[selectedFlightIndex]?.toCity} // Truyền giá trị "to"
                     onSwap={() => {
-                        const temp = flights[selectedFlightIndex]?.from;
-                        updateFlight(selectedFlightIndex, 'from', flights[selectedFlightIndex]?.to);
-                        updateFlight(selectedFlightIndex, 'to', temp);
+                        const temp = flights[selectedFlightIndex]?.fromCity;
+                        updateFlight(selectedFlightIndex, 'fromCity', flights[selectedFlightIndex]?.toCity);
+                        updateFlight(selectedFlightIndex, 'toCity', temp);
                     }}
                     selectedInput={locationType} // Truyền loại địa điểm đã chọn
                 />

@@ -33,6 +33,10 @@ const SearchResult = ({ navigation, route }) => {
     const [isSortFilterVisible, setSortFilterVisible] = useState(false);
     const [filteredFlightData, setFilteredFlightData] = useState([]);
     const [loading, setLoading] = useState(true);
+    const { flights } = route.params;
+
+    // console.log('route.params:', route.params);
+    // console.log('flights:', flights);
 
     useEffect(() => {
         const fetchFlightData = async () => {
@@ -41,71 +45,82 @@ const SearchResult = ({ navigation, route }) => {
                 const flightRef = db.collection('flight');
                 let query = flightRef;
 
-                if (type === 'roundtrip') {
-                    query = query.where('type', '==', 'roundtrip');
+                // Function to fetch flight data based on the query
+                const getFlightData = async (query) => {
+                    const snapshot = await query.get();
+                    return await Promise.all(snapshot.docs.map(async (doc) => {
+                        const flightData = doc.data();
+                        const departureAirportId = flightData.departure.split('/').pop();
+                        const destinationAirportId = flightData.destination.split('/').pop();
+                        const departureCityId = flightData.departure.split('/').slice(-3, -2)[0];
+                        const destinationCityId = flightData.destination.split('/').slice(-3, -2)[0];
+
+                        // Fetch airport data
+                        const departureCityDoc = await db.collection('city').doc(departureCityId).get();
+                        const departureAirportDoc = await departureCityDoc.ref.collection('airport').doc(departureAirportId).get();
+                        const departureAirportData = departureAirportDoc.data();
+
+                        const destinationCityDoc = await db.collection('city').doc(destinationCityId).get();
+                        const destinationAirportDoc = await destinationCityDoc.ref.collection('airport').doc(destinationAirportId).get();
+                        const destinationAirportData = destinationAirportDoc.data();
+
+                        return {
+                            id: doc.id,
+                            ...flightData,
+                            departureCode: departureAirportData.code,
+                            destinationCode: destinationAirportData.code,
+                        };
+                    }));
+                };
+
+                if (flights === undefined) {
+                    // Build query for one-way or roundtrip flights
+                    if (type === 'round-trip') {
+                        query = query.where('type', '==', 'round-trip');
+                    } else if (type === 'one-way') {
+                        query = query.where('type', '==', 'one-way');
+                    }
+                    if (from) {
+                        query = query.where('departure', '==', from);
+                    }
+                    if (to) {
+                        query = query.where('destination', '==', to);
+                    }
+                    if (departureDate) {
+                        const departureTimestamp = firestore.Timestamp.fromDate(new Date(departureDate));
+                        query = query.where('from', '>=', departureTimestamp);
+                    }
+                    if (returnDate) {
+                        const returnTimestamp = firestore.Timestamp.fromDate(new Date(returnDate));
+                        query = query.where('to', '<=', returnTimestamp);
+                    }
+
+                    // Fetch data for one-way or roundtrip flights
+                    const data = await getFlightData(query);
+                    setFlightData(data);
+                    setFilteredFlightData(data);
+                } else {
+                    // Handle multi-city flights
+                    const multiCityPromises = flights.map(async (flight) => {
+                        const flightQuery = flightRef
+                            .where('departure', '==', flight.from)
+                            .where('destination', '==', flight.to)
+                            .where('type', '==', 'one-way');
+
+                        if (flight.date) {
+                            const flightDateTimestamp = firestore.Timestamp.fromDate(new Date(flight.date));
+                            flightQuery.where('from', '>=', flightDateTimestamp);
+                        }
+
+                        return await getFlightData(flightQuery);
+                    });
+
+                    const multiCityResults = await Promise.all(multiCityPromises);
+                    const flattenedResults = multiCityResults.flat();
+
+                    setFlightData(flattenedResults);
+                    setFilteredFlightData(flattenedResults);
                 }
-
-                if (type === 'oneway') {
-                    query = query.where('type', '==', 'oneway');
-                }
-
-                if (from) {
-                    query = query.where('departure', '==', from);
-                }
-                if (to) {
-                    query = query.where('destination', '==', to);
-                }
-                if (departureDate) {
-                    const departureTimestamp = firestore.Timestamp.fromDate(new Date(departureDate));
-                    query = query.where('from', '>=', departureTimestamp);
-                    console.log('Departure date:', departureDate);
-                    console.log('Departure timestamp:', departureTimestamp);
-                }
-
-                if (returnDate) {
-                    const returnTimestamp = firestore.Timestamp.fromDate(new Date(returnDate));
-                    query = query.where('to', '<=', returnTimestamp);
-                    console.log('Return timestamp:', returnDate);
-                    console.log('Return timestamp:', returnTimestamp);
-                }
-
-                const snapshot = await query.get();
-                const data = await Promise.all(snapshot.docs.map(async (doc) => {
-                    const flightData = doc.data();
-                    console.log('Flight data:', flightData);
-
-                    const departureAirportId = flightData.departure.split('/').pop(); // Lấy ID sân bay khởi hành
-                    const destinationAirportId = flightData.destination.split('/').pop(); // Lấy ID sân bay đến
-
-                    const departureCityId = flightData.departure.split('/').slice(-3, -2)[0]; // Lấy phần tử thứ 3 từ phải qua
-                    console.log(departureCityId); // Kết quả: CTY001
-
-                    // Lấy ID thành phố từ chuỗi đến
-                    const destinationCityId = flightData.destination.split('/').slice(-3, -2)[0]; // Lấy phần tử thứ 3 từ phải qua
-                    console.log(destinationCityId); // Kết quả: CTY002
-
-                    // Lấy thông tin sân bay khởi hành
-                    const departureCityDoc = await db.collection('city').doc(departureCityId).get();
-                    const departureAirportDoc = await departureCityDoc.ref.collection('airport').doc(departureAirportId).get();
-                    const departureAirportData = departureAirportDoc.data();
-
-                    // Lấy thông tin sân bay đến
-                    const destinationCityDoc = await db.collection('city').doc(destinationCityId).get();
-                    const destinationAirportDoc = await destinationCityDoc.ref.collection('airport').doc(destinationAirportId).get();
-                    const destinationAirportData = destinationAirportDoc.data();
-
-                    return {
-                        id: doc.id,
-                        ...flightData,
-                        departureCode: departureAirportData.code, // Mã sân bay khởi hành
-                        destinationCode: destinationAirportData.code, // Mã sân bay đến
-                    };
-                }));
-
-                console.log('Fetched flight data:', data);
-
-                setFlightData(data);
-                setFilteredFlightData(data);
             } catch (error) {
                 console.log('Error fetching flight data:', error);
             } finally {
@@ -114,7 +129,7 @@ const SearchResult = ({ navigation, route }) => {
         };
 
         fetchFlightData();
-    }, [type,from, to, departureDate, returnDate, travelerData]);
+    }, [type, from, to, departureDate, returnDate, flights, travelerData]);
 
     const handleApplyFilters = (filters) => {
         const { sortOption, stopOption, selectedAirlines } = filters;
@@ -143,18 +158,19 @@ const SearchResult = ({ navigation, route }) => {
         setSortFilterVisible(false);
     };
 
-    const renderItem = ({ item }) => {
+    const renderItem = ({ item, index }) => {
         // Convert Firestore timestamps to Date objects
         const departureTime = item.from ?
             new Date(item.from._seconds * 1000).toLocaleString() : 'N/A';
         const arrivalTime = item.to ?
             new Date(item.to._seconds * 1000).toLocaleString() : 'N/A';
 
-        console.log('Departure time:', departureTime);
-        console.log('Arrival time:', arrivalTime);
+        // console.log('Departure time:', departureTime);
+        // console.log('Arrival time:', arrivalTime);
 
         return (
             <FlightResult
+                key={`flight-${index}`}
                 flight={{
                     ...item,
                     departureTime,
@@ -181,7 +197,7 @@ const SearchResult = ({ navigation, route }) => {
 
             <FlatList
                 data={filteredFlightData}
-                keyExtractor={(item) => item.id}
+                keyExtractor={(flight) => flight.id}
                 renderItem={renderItem}
                 ListEmptyComponent={<Text style={styles.emptyText}>No flights found</Text>}
             />

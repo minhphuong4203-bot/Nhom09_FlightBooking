@@ -84,9 +84,16 @@ const RoundTripSearching = ({ navigation, route }) => {
     };
 
     const handleSwap = () => {
-        const temp = from;
-        setFrom(to);
-        setTo(temp);
+        // Swap the values of from and to
+        const tempFrom = from;
+        const tempTo = to;
+        const tempDepartCity = departCity;
+        const tempDestiCity = destiCity;
+
+        setFrom(tempTo);
+        setTo(tempFrom);
+        setDepartCity(tempDestiCity);
+        setDestiCity(tempDepartCity);
     };
 
     const openDatePicker = () => {
