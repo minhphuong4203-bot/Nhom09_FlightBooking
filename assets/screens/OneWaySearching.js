@@ -15,8 +15,10 @@ const OneWaySearching = ({ navigation }) => {
     const [to, setTo] = useState('');
     const [isModalVisible, setModalVisible] = useState(false);
     const [selectedInput, setSelectedInput] = useState(null);
-    const [departureDate, setDepartureDate] = useState(new Date());
+    const [departureDate, setDepartureDate] = useState(null);
     const [datePickerVisible, setDatePickerVisible] = useState(false);
+    const [departCity, setDepartCity] = useState('');
+    const [destiCity, setDestiCity] = useState('');
 
     const [isTravelOptionsVisible, setTravelOptionsVisible] = useState(false);
     const [travelerData, setTravelerData] = useState({
@@ -56,11 +58,18 @@ const OneWaySearching = ({ navigation }) => {
     };
 
     const handleSearch = () => {
-        if (from && to) {
-            navigation.navigate('SearchResults', { from, to });
-        } else {
-            alert("Please fill in both 'From' and 'To' fields.");
-        }
+        const departureDateString = departureDate ?
+            new Date(Date.UTC(departureDate.getUTCFullYear(), departureDate.getUTCMonth(), departureDate.getUTCDate() + 1)).toISOString() : null;
+
+        console.log('departureDateString', departureDateString);
+
+        navigation.navigate('SearchResult', {
+            from: from,
+            to: to,
+            departureDate: departureDateString,
+            travelerData: travelerData,
+            type: 'one-way',
+        });
     };
 
     const openLocationPicker = (inputType) => {
@@ -74,9 +83,11 @@ const OneWaySearching = ({ navigation }) => {
 
     const handleLocationSelect = (location) => {
         if (selectedInput === 'from') {
-            setFrom(location);
+            setFrom(location.path); // Set the full path for departure
+            setDepartCity(location.city);
         } else if (selectedInput === 'to') {
-            setTo(location);
+            setTo(location.path); // Set the full path for destination
+            setDestiCity(location.city);
         }
         closeLocationPicker();
     };
@@ -139,7 +150,7 @@ const OneWaySearching = ({ navigation }) => {
                     <Icon name="chevron-down" size={16} color="#9095a0" style={{ position: 'absolute', right: 30 }} />
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.searchButton} onPress={() => navigation.navigate('SearchResult')}>
+                <TouchableOpacity style={styles.searchButton} onPress={handleSearch}>
                     <Text style={styles.searchButtonText}>Search flights</Text>
                 </TouchableOpacity>
             </ScrollView>
