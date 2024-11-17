@@ -116,22 +116,33 @@ const DatePicker = ({ visible, onClose, onSelect, departureDate, returnDate, tri
                             </TouchableOpacity>
                         </View>
 
-
                         <View style={styles.dateInputContainer}>
-                            <TouchableOpacity onPress={() => handleDateInputPress(true)} style={styles.inputContainer}>
+                            <TouchableOpacity
+                                onPress={() => handleDateInputPress(true)}
+                                style={styles.inputContainer}
+                            >
                                 <Image source={require('../images/Icon/airplane.png')} style={styles.airplaneImg} />
                                 <TextInput
-                                    style={styles.dateInput}
+                                    style={[
+                                        styles.dateInput,
+                                        isSelectingStartDate ? styles.selectedInput : styles.defaultInput, // Áp dụng style cho input đang được chọn
+                                    ]}
                                     value={formatDate(selectedStartDate)}
                                     placeholder="From"
                                     editable={false}
                                 />
                             </TouchableOpacity>
                             {tripType === 'round-trip' && (
-                                <TouchableOpacity onPress={() => handleDateInputPress(false)} style={styles.inputContainer}>
+                                <TouchableOpacity
+                                    onPress={() => handleDateInputPress(false)}
+                                    style={styles.inputContainer}
+                                >
                                     <Image source={require('../images/Icon/arrivals.png')} style={styles.airplaneImg} />
                                     <TextInput
-                                        style={styles.dateInput}
+                                        style={[
+                                            styles.dateInput,
+                                            !isSelectingStartDate ? styles.selectedInput : styles.defaultInput, // Áp dụng style cho input đang được chọn
+                                        ]}
                                         value={selectedEndDate ? formatDate(selectedEndDate) : ''}
                                         placeholder="To"
                                         editable={false}
@@ -227,23 +238,32 @@ const styles = StyleSheet.create({
     dateInput: {
         flex: 1,
         borderWidth: 1,
+        borderColor: '#ccc',
         padding: 10,
         borderRadius: 4,
+        paddingLeft: 60,
         minHeight: 50,
         fontWeight: '700',
         fontSize: 16,
         color: '#000',
     },
     selectedInput: {
-        borderColor: '#00BCD4', // Color for the selected input
+        borderColor: '#00BCD4', // Màu viền cho input đang được chọn
+        borderWidth: 2, // Độ dày viền
     },
     defaultInput: {
-        borderColor: '#ccc', // Default border color
+        borderColor: '#ccc', // Màu viền mặc định
     },
+    // selectedInput: {
+    //     borderColor: '#00BCD4', // Color for the selected input
+    // },
+    // defaultInput: {
+    //     borderColor: '#ccc', // Default border color
+    // },
     weekdayHeader: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        marginBottom: 8,
+        // marginBottom: 8,
         borderBottomWidth: 1,
         borderBottomColor: '#ccc',
         paddingBottom: 8,
@@ -257,18 +277,6 @@ const styles = StyleSheet.create({
     weekdayHeaderText: {
         fontSize: 14,
         fontWeight: 'bold',
-    },
-    dateInput: {
-        flex: 1,
-        borderWidth: 1,
-        borderColor: '#ccc',
-        padding: 10,
-        borderRadius: 4,
-        paddingLeft: 60,
-        minHeight: 50,
-        fontWeight: '700', // Set font weight to 700
-        fontSize: 16, // Optional: set a font size for better visibility
-        color: '#000', // Optional: set a color for better visibility
     },
     monthContainer: {
         alignItems: 'center',

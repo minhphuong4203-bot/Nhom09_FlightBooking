@@ -1,18 +1,9 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, FlatList } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, FlatList, StyleSheet, TouchableOpacity, Text, ActivityIndicator } from 'react-native';
+import firestore from '@react-native-firebase/firestore';
 import Icon from 'react-native-vector-icons/Ionicons';
-import SortFilterModal from './SortFilterModal'; // Import SortFilterModal component
-import FlightDetail from './FlightDetail';
+import SortFilterModal from './SortFilterModal';
 
-// Sample data for flights
-const flightData = [
-    { id: '1', departureTime: '6:30 AM', arrivalTime: '2:00 PM', from: 'LCY', to: 'JFK', airline: 'SkyHaven', duration: '7h 30m', stops: '1 stop', price: '$806' },
-    { id: '2', departureTime: '3:15 PM', arrivalTime: '6:05 PM', from: 'LCY', to: 'JFK', airline: 'CC Air', duration: '7h 50m', stops: 'Direct', price: '$964' },
-    { id: '3', departureTime: '3:15 PM', arrivalTime: '7:50 PM', from: 'LCY', to: 'JFK', airline: 'EcoWings', duration: '7h 30m', stops: 'Direct', price: '$964' },
-    // Add more flights as needed
-];
-
-// Component to display each flight result
 const FlightResult = ({ flight, navigation }) => (
     <TouchableOpacity
         style={styles.resultContainer}
@@ -23,38 +14,106 @@ const FlightResult = ({ flight, navigation }) => (
             <Text style={styles.airlineText}>{flight.airline}</Text>
         </View>
         <View style={styles.routeInfo}>
-            <Text style={styles.airportCode}>{flight.from}</Text>
+            <Text style={styles.airportCode}>{flight.departureCode}</Text> {/* Hiển thị mã sân bay khởi hành */}
             <Icon name="arrow-forward" size={16} color="#000" />
-            <Text style={styles.airportCode}>{flight.to}</Text>
+            <Text style={styles.airportCode}>{flight.destinationCode}</Text> {/* Hiển thị mã sân bay đến */}
+            <Text style={styles.airportCode}>, {flight.weather}</Text> {/* Hiển thị mã sân bay đến */}
         </View>
         <View style={styles.details}>
             <Text style={styles.durationText}>{flight.duration}</Text>
-            <Text style={styles.stopsText}>{flight.stops}</Text>
+            <Text style={styles.stopsText}>{flight.stop}</Text>
         </View>
-        <Text style={styles.priceText}>{flight.price}</Text>
+        <Text style={styles.priceText}>${flight.price}</Text>
     </TouchableOpacity>
 );
 
-// Main component to render the flight search results
-const FlightResults = ({ navigation }) => {
+const SearchResult = ({ navigation, route }) => {
+    const { from, to, departureDate, returnDate, travelerData, type } = route.params;
+    const [flightData, setFlightData] = useState([]);
     const [isSortFilterVisible, setSortFilterVisible] = useState(false);
-    const [filteredFlightData, setFilteredFlightData] = useState(flightData);
+    const [filteredFlightData, setFilteredFlightData] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchFlightData = async () => {
+            try {
+                const db = firestore();
+                const flightRef = db.collection('flight');
+                let query = flightRef;
+
+                if (type === 'roundtrip') {
+                    query = query.where('type', '==', 'roundtrip');
+                }
+
+                if (from) {
+                    query = query.where('departure', '==', from);
+                }
+                if (to) {
+                    query = query.where('destination', '==', to);
+                }
+                if (departureDate) {
+                    const departureTimestamp = firestore.Timestamp.fromDate(new Date(departureDate));
+                    query = query.where('from', '>=', departureTimestamp);
+                    console.log('Departure date:', departureDate);
+                    console.log('Departure timestamp:', departureTimestamp);
+                }
+
+                if (returnDate) {
+                    const returnTimestamp = firestore.Timestamp.fromDate(new Date(returnDate));
+                    query = query.where('to', '<=', returnTimestamp);
+                    console.log('Return timestamp:', returnDate);
+                    console.log('Return timestamp:', returnTimestamp);
+                }
+
+                const snapshot = await query.get();
+                const data = await Promise.all(snapshot.docs.map(async (doc) => {
+                    const flightData = doc.data();
+                    const departureAirportId = flightData.departure.split('/').pop(); // Lấy ID sân bay khởi hành
+                    const destinationAirportId = flightData.destination.split('/').pop(); // Lấy ID sân bay đến
+
+                    // Lấy thông tin sân bay khởi hành
+                    const departureAirportDoc = await db.collection('city').doc('CTY002').collection('airport').doc(departureAirportId).get();
+                    const departureAirportData = departureAirportDoc.data();
+
+                    // Lấy thông tin sân bay đến
+                    const destinationAirportDoc = await db.collection('city').doc('CTY002').collection('airport').doc(destinationAirportId).get();
+                    const destinationAirportData = destinationAirportDoc.data();
+
+                    return {
+                        id: doc.id,
+                        ...flightData,
+                        departureCode: departureAirportData.code, // Mã sân bay khởi hành
+                        destinationCode: destinationAirportData.code, // Mã sân bay đến
+                    };
+                }));
+
+                console.log('Fetched flight data:', data);
+
+                setFlightData(data);
+                setFilteredFlightData(data);
+            } catch (error) {
+                console.log('Error fetching flight data:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchFlightData();
+    }, [type,from, to, departureDate, returnDate, travelerData]);
 
     const handleApplyFilters = (filters) => {
         const { sortOption, stopOption, selectedAirlines } = filters;
 
-        // Filter based on stops and selected airlines
         let filteredData = flightData.filter((flight) => {
             const matchesStops =
                 stopOption === 'Any stops' ||
                 (stopOption === '1 stop or nonstop' && (flight.stops === '1 stop' || flight.stops === 'Direct')) ||
                 (stopOption === 'Nonstop only' && flight.stops === 'Direct');
-            
+
             const matchesAirline = selectedAirlines.size === 0 || selectedAirlines.has(flight.airline);
             return matchesStops && matchesAirline;
         });
 
-        // Sort the filtered data based on the sort option
         if (sortOption === 'Cheapest') {
             filteredData.sort((a, b) => parseFloat(a.price.replace('$', '')) - parseFloat(b.price.replace('$', '')));
         } else if (sortOption === 'Fastest') {
@@ -65,14 +124,38 @@ const FlightResults = ({ navigation }) => {
             });
         }
 
-        // Update the state with the filtered and sorted data
         setFilteredFlightData(filteredData);
         setSortFilterVisible(false);
     };
 
+    const renderItem = ({ item }) => {
+        // Convert Firestore timestamps to Date objects
+        const departureTime = item.from ?
+            new Date(item.from._seconds * 1000).toLocaleString() : 'N/A';
+        const arrivalTime = item.to ?
+            new Date(item.to._seconds * 1000).toLocaleString() : 'N/A';
+
+        console.log('Departure time:', departureTime);
+        console.log('Arrival time:', arrivalTime);
+
+        return (
+            <FlightResult
+                flight={{
+                    ...item,
+                    departureTime,
+                    arrivalTime,
+                }}
+                navigation={navigation}
+            />
+        );
+    };
+
+    if (loading) {
+        return <ActivityIndicator size="large" color="#0000ff" />;
+    }
+
     return (
         <View style={styles.container}>
-            {/* Sort & Filter Button */}
             <TouchableOpacity
                 style={styles.sortFilterButton}
                 onPress={() => setSortFilterVisible(true)}
@@ -81,14 +164,13 @@ const FlightResults = ({ navigation }) => {
                 <Icon name="funnel-outline" size={20} color="#fff" />
             </TouchableOpacity>
 
-            {/* Search Results List */}
             <FlatList
                 data={filteredFlightData}
                 keyExtractor={(item) => item.id}
-                renderItem={({ item }) => <FlightResult flight={item} navigation={navigation} />}
+                renderItem={renderItem}
+                ListEmptyComponent={<Text style={styles.emptyText}>No flights found</Text>}
             />
 
-            {/* Back Button */}
             <TouchableOpacity
                 style={styles.backButton}
                 onPress={() => navigation.goBack()}
@@ -97,7 +179,6 @@ const FlightResults = ({ navigation }) => {
                 <Text style={styles.backText}>Back</Text>
             </TouchableOpacity>
 
-            {/* SortFilterModal */}
             <SortFilterModal
                 visible={isSortFilterVisible}
                 onClose={() => setSortFilterVisible(false)}
@@ -194,6 +275,12 @@ const styles = StyleSheet.create({
         color: '#fff',
         marginLeft: 4,
     },
+    emptyText: {
+        textAlign: 'center',
+        marginTop: 20,
+        fontSize: 16,
+        color: '#767a81',
+    },
 });
 
-export default FlightResults;
+export default SearchResult;

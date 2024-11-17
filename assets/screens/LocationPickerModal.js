@@ -1,4 +1,4 @@
-import React, { useState,useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, Modal, TouchableOpacity, FlatList, StyleSheet, TextInput, Image } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import firestore from '@react-native-firebase/firestore';
@@ -73,7 +73,11 @@ const LocationPickerModal = ({ visible, onClose, onSelect, title, from, to, onSw
                 <FlatList
                     data={item.airports}
                     renderItem={({ item: airport }) => (
-                        <TouchableOpacity style={styles.airportItem} onPress={() => onSelect(item.city)}>
+                        <TouchableOpacity style={styles.airportItem} onPress={() => onSelect({
+                            city: item.name,
+                            code: airport.code,
+                            path: `/city/${item.id}/airport/${airport.id}` // Pass the full path
+                        })}>
                             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                                 <Icon name="airplane" size={20} color="#000" />
                                 <View style={{ marginLeft: 20, justifyContent: 'space-between', flex: 1 }}>
