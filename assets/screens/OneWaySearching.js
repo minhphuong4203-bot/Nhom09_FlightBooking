@@ -113,7 +113,7 @@ const OneWaySearching = ({ navigation }) => {
                         style={[styles.searchInput, from ? styles.selectedInput : null]} // Thay đổi kiểu dáng nếu có giá trị
                         placeholder="From"
                         placeholderTextColor="#9095a0"
-                        value={from}
+                        value={departCity}
                         editable={false} // Disable editing directly
                     />
                 </TouchableOpacity>
@@ -128,7 +128,7 @@ const OneWaySearching = ({ navigation }) => {
                         style={[styles.searchInput, to ? styles.selectedInput : null]} // Thay đổi kiểu dáng nếu có giá trị
                         placeholder="To"
                         placeholderTextColor="#9095a0"
-                        value={to}
+                        value={destiCity}
                         editable={false} // Disable editing directly
                     />
                 </TouchableOpacity>
@@ -168,8 +168,8 @@ const OneWaySearching = ({ navigation }) => {
                 onClose={closeLocationPicker}
                 onSelect={handleLocationSelect}
                 title={`Where ${selectedInput === 'from' ? 'from?' : 'to?'}`}
-                from={from}
-                to={to}
+                from={departCity}
+                to={destiCity}
                 onSwap={handleSwap}
                 selectedInput={selectedInput}
             />

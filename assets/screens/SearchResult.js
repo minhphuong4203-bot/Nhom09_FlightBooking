@@ -45,6 +45,10 @@ const SearchResult = ({ navigation, route }) => {
                     query = query.where('type', '==', 'roundtrip');
                 }
 
+                if (type === 'oneway') {
+                    query = query.where('type', '==', 'oneway');
+                }
+
                 if (from) {
                     query = query.where('departure', '==', from);
                 }
@@ -68,15 +72,26 @@ const SearchResult = ({ navigation, route }) => {
                 const snapshot = await query.get();
                 const data = await Promise.all(snapshot.docs.map(async (doc) => {
                     const flightData = doc.data();
+                    console.log('Flight data:', flightData);
+
                     const departureAirportId = flightData.departure.split('/').pop(); // Lấy ID sân bay khởi hành
                     const destinationAirportId = flightData.destination.split('/').pop(); // Lấy ID sân bay đến
 
+                    const departureCityId = flightData.departure.split('/').slice(-3, -2)[0]; // Lấy phần tử thứ 3 từ phải qua
+                    console.log(departureCityId); // Kết quả: CTY001
+
+                    // Lấy ID thành phố từ chuỗi đến
+                    const destinationCityId = flightData.destination.split('/').slice(-3, -2)[0]; // Lấy phần tử thứ 3 từ phải qua
+                    console.log(destinationCityId); // Kết quả: CTY002
+
                     // Lấy thông tin sân bay khởi hành
-                    const departureAirportDoc = await db.collection('city').doc('CTY002').collection('airport').doc(departureAirportId).get();
+                    const departureCityDoc = await db.collection('city').doc(departureCityId).get();
+                    const departureAirportDoc = await departureCityDoc.ref.collection('airport').doc(departureAirportId).get();
                     const departureAirportData = departureAirportDoc.data();
 
                     // Lấy thông tin sân bay đến
-                    const destinationAirportDoc = await db.collection('city').doc('CTY002').collection('airport').doc(destinationAirportId).get();
+                    const destinationCityDoc = await db.collection('city').doc(destinationCityId).get();
+                    const destinationAirportDoc = await destinationCityDoc.ref.collection('airport').doc(destinationAirportId).get();
                     const destinationAirportData = destinationAirportDoc.data();
 
                     return {
