@@ -1,108 +1,123 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { Picker } from '@react-native-picker/picker';
 
-const PassengerInformation = ({ navigation, route }) => {
-    const { flightData } = route.params; // Dữ liệu chuyến bay từ FlightDetails
-    const [firstName, setFirstName] = useState('');
-    const [lastName, setLastName] = useState('');
-    const [gender, setGender] = useState('');
-    const [email, setEmail] = useState('');
-    const [phone, setPhone] = useState('');
+const PassengerInformationScreen = ({ navigation, route }) => {
+    const { flightData } = route.params;
+    const [passengerInfo, setPassengerInfo] = useState({
+        firstName: '',
+        lastName: '',
+        email: '',
+        phone: '',
+        dateOfBirth: '',
+        nationality: '',
+        passportNumber: ''
+    });
 
-    const handleNext = () => {
-        const passengerData = {
-            firstName,
-            lastName,
-            gender,
-            email,
-            phone,
-        };
-        navigation.navigate('PaymentScreen', { flightData, passengerData });
+    const handleContinue = () => {
+        navigation.navigate('BaggageInformation', {
+            flightData,
+            passengerInfo
+        });
     };
 
     return (
-        <View style={styles.container}>
-            {/* Header */}
-            <View style={styles.header}>
-                <TouchableOpacity onPress={() => navigation.goBack()}>
-                    <Icon name="arrow-back" size={24} color="#000" />
-                </TouchableOpacity>
-                <Text style={styles.headerTitle}>Traveller information</Text>
-            </View>
+      <ScrollView style={styles.container}>
+          {/* Header */}
+          <View style={styles.header}>
+              <TouchableOpacity onPress={() => navigation.goBack()}>
+                  <Icon name="arrow-back" size={24} color="#000" />
+              </TouchableOpacity>
+              <Text style={styles.headerTitle}>Traveller information</Text>
+          </View>
 
-            {/* Progress Indicator */}
-            <View style={styles.progressContainer}>
-                <Icon name="person-circle-outline" size={32} color="#00bdd6" />
-                <Icon name="briefcase-outline" size={32} color="#ccc" />
-                <Icon name="car-outline" size={32} color="#ccc" />
-                <Icon name="card-outline" size={32} color="#ccc" />
-            </View>
+          {/* Progress Indicator */}
+          <View style={styles.progressContainer}>
+              <Icon name="person-circle-outline" size={32} color="#00bdd6" />
+              <Icon name="briefcase-outline" size={32} color="#ccc" />
+              <Icon name="car-outline" size={32} color="#ccc" />
+              <Icon name="card-outline" size={32} color="#ccc" />
+          </View>
 
-            {/* Traveller Info */}
-            <Text style={styles.sectionTitle}>Traveller: 1 adult</Text>
-
-            {/* Input Fields */}
-            <View style={styles.inputContainer}>
-                <TextInput
-                    placeholder="First name"
+          <View style={styles.formContainer}>
+              <View style={styles.inputGroup}>
+                  <Text style={styles.label}>First Name</Text>
+                  <TextInput
                     style={styles.input}
-                    value={firstName}
-                    onChangeText={setFirstName}
-                />
-                <TextInput
-                    placeholder="Last name"
-                    style={styles.input}
-                    value={lastName}
-                    onChangeText={setLastName}
-                />
-                <View style={styles.pickerContainer}>
-                    <Picker
-                        selectedValue={gender}
-                        onValueChange={(itemValue) => setGender(itemValue)}
-                        style={styles.picker}
-                    >
-                        <Picker.Item label="Select option" value="" />
-                        <Picker.Item label="Male" value="male" />
-                        <Picker.Item label="Female" value="female" />
-                        <Picker.Item label="Other" value="other" />
-                    </Picker>
-                </View>
-            </View>
+                    value={passengerInfo.firstName}
+                    onChangeText={(text) => setPassengerInfo({...passengerInfo, firstName: text})}
+                    placeholder="Enter first name"
+                  />
+              </View>
 
-            {/* Contact Details */}
-            <Text style={styles.sectionTitle}>Contact details</Text>
-            <View style={styles.inputContainer}>
-                <TextInput
-                    placeholder="Your email"
+              <View style={styles.inputGroup}>
+                  <Text style={styles.label}>Last Name</Text>
+                  <TextInput
                     style={styles.input}
-                    value={email}
-                    onChangeText={setEmail}
-                />
-                <View style={styles.phoneInputContainer}>
-                    <Text style={styles.phonePrefix}>+07</Text>
-                    <TextInput
-                        placeholder="Phone number"
-                        style={styles.phoneInput}
-                        keyboardType="phone-pad"
-                        value={phone}
-                        onChangeText={setPhone}
-                    />
-                </View>
-            </View>
+                    value={passengerInfo.lastName}
+                    onChangeText={(text) => setPassengerInfo({...passengerInfo, lastName: text})}
+                    placeholder="Enter last name"
+                  />
+              </View>
 
-            {/* Footer */}
-            <View style={styles.footer}>
-                <View>
-                    <Text style={styles.totalPrice}>${flightData.totalPrice}</Text>
-                    <Text style={styles.adultText}>1 adult</Text>
-                </View>
-                <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
-                    <Text style={styles.nextButtonText}>Next</Text>
-                </TouchableOpacity>
-            </View>
-        </View>
+              <View style={styles.inputGroup}>
+                  <Text style={styles.label}>Email</Text>
+                  <TextInput
+                    style={styles.input}
+                    value={passengerInfo.email}
+                    onChangeText={(text) => setPassengerInfo({...passengerInfo, email: text})}
+                    placeholder="Enter email"
+                    keyboardType="email-address"
+                  />
+              </View>
+
+              <View style={styles.inputGroup}>
+                  <Text style={styles.label}>Phone</Text>
+                  <TextInput
+                    style={styles.input}
+                    value={passengerInfo.phone}
+                    onChangeText={(text) => setPassengerInfo({...passengerInfo, phone: text})}
+                    placeholder="Enter phone number"
+                    keyboardType="phone-pad"
+                  />
+              </View>
+
+              <View style={styles.inputGroup}>
+                  <Text style={styles.label}>Date of Birth</Text>
+                  <TextInput
+                    style={styles.input}
+                    value={passengerInfo.dateOfBirth}
+                    onChangeText={(text) => setPassengerInfo({...passengerInfo, dateOfBirth: text})}
+                    placeholder="YYYY-MM-DD"
+                  />
+              </View>
+
+              <View style={styles.inputGroup}>
+                  <Text style={styles.label}>Nationality</Text>
+                  <TextInput
+                    style={styles.input}
+                    value={passengerInfo.nationality}
+                    onChangeText={(text) => setPassengerInfo({...passengerInfo, nationality: text})}
+                    placeholder="Enter nationality"
+                  />
+              </View>
+
+              <View style={styles.inputGroup}>
+                  <Text style={styles.label}>Passport Number</Text>
+                  <TextInput
+                    style={styles.input}
+                    value={passengerInfo.passportNumber}
+                    onChangeText={(text) => setPassengerInfo({...passengerInfo, passportNumber: text})}
+                    placeholder="Enter passport number"
+                  />
+              </View>
+          </View>
+
+          <TouchableOpacity style={styles.continueButton} onPress={handleContinue}>
+              <Text style={styles.buttonText}>Continue</Text>
+              <Icon name="arrow-forward" size={24} color="#fff" />
+          </TouchableOpacity>
+      </ScrollView>
     );
 };
 
@@ -110,94 +125,62 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#fff',
-        paddingHorizontal: 16,
     },
     header: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingVertical: 16,
+        padding: 20,
+        backgroundColor: '#fff',
+        borderBottomWidth: 1,
+        borderBottomColor: '#e0e0e0',
     },
     headerTitle: {
-        fontSize: 18,
+        fontSize: 20,
         fontWeight: 'bold',
-        flex: 1,
-        textAlign: 'center',
-        marginRight: 32,
+        marginLeft: 20,
     },
     progressContainer: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginVertical: 16,
+        justifyContent: 'space-around',
+        alignItems: 'center',
+        padding: 20,
+        backgroundColor: '#fff',
+        borderBottomWidth: 1,
+        borderBottomColor: '#e0e0e0',
     },
-    sectionTitle: {
+    formContainer: {
+        padding: 20,
+    },
+    inputGroup: {
+        marginBottom: 20,
+    },
+    label: {
         fontSize: 16,
-        fontWeight: 'bold',
-        marginVertical: 8,
-    },
-    inputContainer: {
-        marginBottom: 16,
+        color: '#333',
+        marginBottom: 8,
     },
     input: {
         borderWidth: 1,
         borderColor: '#ddd',
         borderRadius: 8,
         padding: 12,
-        marginBottom: 12,
         fontSize: 16,
     },
-    pickerContainer: {
-        borderWidth: 1,
-        borderColor: '#ddd',
-        borderRadius: 8,
-        overflow: 'hidden',
-    },
-    picker: {
-        height: 50,
-    },
-    phoneInputContainer: {
+    continueButton: {
         flexDirection: 'row',
-        alignItems: 'center',
-        borderWidth: 1,
-        borderColor: '#ddd',
+        backgroundColor: '#00b2b2',
+        margin: 20,
+        padding: 15,
         borderRadius: 8,
-        padding: 12,
-    },
-    phonePrefix: {
-        marginRight: 8,
-        fontSize: 16,
-        color: '#666',
-    },
-    phoneInput: {
-        flex: 1,
-        fontSize: 16,
-    },
-    footer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
+        justifyContent: 'center',
         alignItems: 'center',
-        paddingVertical: 16,
-        borderTopWidth: 1,
-        borderTopColor: '#ddd',
     },
-    totalPrice: {
-        fontSize: 18,
-        fontWeight: 'bold',
-    },
-    adultText: {
-        fontSize: 14,
-        color: '#666',
-    },
-    nextButton: {
-        backgroundColor: '#00bdd6',
-        borderRadius: 8,
-        paddingVertical: 12,
-        paddingHorizontal: 24,
-    },
-    nextButtonText: {
+    buttonText: {
         color: '#fff',
         fontSize: 16,
         fontWeight: 'bold',
+        marginRight: 10,
     },
 });
 
-export default PassengerInformation;
+export default PassengerInformationScreen;

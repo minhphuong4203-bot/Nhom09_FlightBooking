@@ -10,6 +10,8 @@ import SearchResult from './assets/screens/SearchResult';
 import  FlightDetail  from './assets/screens/FlightDetail';
 import PassengerInformation from './assets/screens/PassengerInformation';
 import PaymentInformation from './assets/screens/PaymentInformation';
+import BaggageInformation  from './assets/screens/BaggageInformation';
+import SeatInformation  from './assets/screens/SeatInformation';
 import Summary from './assets/screens/BookingCompleted';
 
 import { NavigationContainer } from '@react-navigation/native';
@@ -57,6 +59,16 @@ export default function App() {
           options={{ headerShown: false }}
         />
         <Stack.Screen
+          name="BaggageInformation"
+          component={BaggageInformation}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="SeatInformation"
+          component={SeatInformation}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
           name="PaymentScreen"
           component={PaymentInformation}
           options={{ headerShown: false }}
@@ -66,6 +78,7 @@ export default function App() {
           component={Summary}
           options={{ headerShown: false }}
         />
+
       </Stack.Navigator>
       <StatusBar style="auto" />
     </NavigationContainer>

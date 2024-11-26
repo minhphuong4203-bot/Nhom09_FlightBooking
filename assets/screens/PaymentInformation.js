@@ -1,9 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 
 const PaymentScreen = ({ navigation, route }) => {
-    const { passengerInformation, selectedBaggage, checkedBag, travelProtection, selectedSeat } = route.params;
+    const { flightData, passengerInfo, selectedBaggage, selectedSeat } = route.params;
     const [paymentMethod, setPaymentMethod] = useState('MasterCard **** 9876');
+    const [totalPrice, setTotalPrice] = useState(0);
+
+    useEffect(() => {
+        // Calculate total price based on services
+        const seatPrice = selectedSeat?.price || 0;
+        const baggagePrice = selectedBaggage?.price || 0;
+        const basePrice = flightData?.price || 0;
+
+        const total = (basePrice + seatPrice + baggagePrice) ;
+        setTotalPrice(total);
+    }, [flightData, selectedSeat, selectedBaggage, passengerInfo]);
 
     const handlePaymentMethodChange = (method) => {
         setPaymentMethod(method);
@@ -11,54 +22,67 @@ const PaymentScreen = ({ navigation, route }) => {
 
     const handleCheckout = () => {
         navigation.navigate('Summary', {
-            passengerInformation,
+            flightData,
+            passengerInfo,
             selectedBaggage,
-            checkedBag,
-            travelProtection,
             selectedSeat,
             paymentMethod,
+            totalPrice,
         });
     };
 
     return (
-        <View style={styles.container}>
-            <Text style={styles.title}>Payment</Text>
-            <View style={styles.section}>
-                <Text style={styles.sectionTitle}>Payment method</Text>
-                <View style={styles.paymentMethodContainer}>
-                    <Text style={styles.paymentMethod}>{paymentMethod}</Text>
-                    <TouchableOpacity onPress={() => handlePaymentMethodChange('new card')}>
-                        <Text style={styles.editText}>Edit</Text>
-                    </TouchableOpacity>
-                </View>
-                <TouchableOpacity
-                    style={styles.addPaymentMethod}
-                    onPress={() => handlePaymentMethodChange('new card')}
-                >
-                    <Text style={styles.addPaymentMethodText}>+ New card</Text>
-                </TouchableOpacity>
-            </View>
-            <View style={styles.section}>
-                <Text style={styles.sectionTitle}>Traveller details</Text>
-                <View style={styles.travelerDetailsContainer}>
-                    <Text style={styles.travelerName}>Pedro Moreno</Text>
-                    <Text style={styles.travelerInfo}>Adult · Male</Text>
-                </View>
-            </View>
-            <View style={styles.section}>
-                <Text style={styles.sectionTitle}>Contact details</Text>
-                <View style={styles.contactDetailsContainer}>
-                    <Text style={styles.contactDetail}>pedromareno@gmail.com</Text>
-                    <Text style={styles.contactDetail}>(208) 567-8209</Text>
-                </View>
-            </View>
-            <View style={styles.footer}>
-                <Text style={styles.totalText}>${811.56} 1 adult</Text>
-                <TouchableOpacity style={styles.checkoutButton} onPress={handleCheckout}>
-                    <Text style={styles.checkoutButtonText}>Checkout</Text>
-                </TouchableOpacity>
-            </View>
-        </View>
+      <View style={styles.container}>
+          <Text style={styles.title}>Payment</Text>
+          <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Payment method</Text>
+              <View style={styles.paymentMethodContainer}>
+                  <Text style={styles.paymentMethod}>{paymentMethod}</Text>
+                  <TouchableOpacity onPress={() => handlePaymentMethodChange('new card')}>
+                      <Text style={styles.editText}>Edit</Text>
+                  </TouchableOpacity>
+              </View>
+              <TouchableOpacity
+                style={styles.addPaymentMethod}
+                onPress={() => handlePaymentMethodChange('new card')}
+              >
+                  <Text style={styles.addPaymentMethodText}>+ New card</Text>
+              </TouchableOpacity>
+          </View>
+          <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Traveller details</Text>
+              <View style={styles.travelerDetailsContainer}>
+                  <Text style={styles.travelerName}>Pedro Moreno</Text>
+                  <Text style={styles.travelerInfo}>Adult · Male</Text>
+              </View>
+          </View>
+          <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Contact details</Text>
+              <View style={styles.contactDetailsContainer}>
+                  <Text style={styles.contactDetail}>pedromareno@gmail.com</Text>
+                  <Text style={styles.contactDetail}>(208) 567-8209</Text>
+              </View>
+          </View>
+          <View style={styles.footer}>
+              <View style={styles.priceBreakdown}>
+                  <Text style={styles.totalText}>
+                      ${totalPrice.toFixed(2)}
+                  </Text>
+                  <Text style={styles.priceDetail}>
+                      Flight: ${flightData?.price || 0}
+                  </Text>
+                  <Text style={styles.priceDetail}>
+                      Seat: ${selectedSeat?.price || 0}
+                  </Text>
+                  <Text style={styles.priceDetail}>
+                      Baggage: ${selectedBaggage?.price || 0}
+                  </Text>
+              </View>
+              <TouchableOpacity style={styles.checkoutButton} onPress={handleCheckout}>
+                  <Text style={styles.checkoutButtonText}>Checkout</Text>
+              </TouchableOpacity>
+          </View>
+      </View>
     );
 };
 
@@ -137,20 +161,27 @@ const styles = StyleSheet.create({
         marginBottom: 4,
     },
     footer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
         marginTop: 24,
     },
+    priceBreakdown: {
+        marginBottom: 16,
+    },
     totalText: {
-        fontSize: 16,
+        fontSize: 18,
         fontWeight: 'bold',
+        marginBottom: 8,
+    },
+    priceDetail: {
+        fontSize: 14,
+        color: '#666',
+        marginBottom: 4,
     },
     checkoutButton: {
         backgroundColor: '#00b2b2',
         paddingVertical: 12,
         paddingHorizontal: 24,
         borderRadius: 8,
+        alignItems: 'center',
     },
     checkoutButtonText: {
         fontSize: 16,

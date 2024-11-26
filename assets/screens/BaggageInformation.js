@@ -1,86 +1,88 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import Icon from 'react-native-vector-icons/Ionicons';
 
-const BaggageScreen = ({ navigation, route }) => {
-    const { passengerInformation } = route.params;
-    const [selectedBaggage, setSelectedBaggage] = useState('cabin');
-    const [checkedBag, setCheckedBag] = useState(false);
-    const [travelProtection, setTravelProtection] = useState(false);
+const BaggageInformationScreen = ({ navigation, route }) => {
+    const { flightData, passengerInfo } = route.params;
+    const [selectedBaggage, setSelectedBaggage] = useState(null);
 
-    const handleBaggageSelection = (type) => setSelectedBaggage(type);
+    const baggageOptions = [
+        { id: 1, weight: '20kg', price: 30, description: 'Standard Checked Baggage' },
+        { id: 2, weight: '25kg', price: 45, description: 'Extra Checked Baggage' },
+        { id: 3, weight: '30kg', price: 60, description: 'Premium Checked Baggage' },
+    ];
 
-    const handleCheckedBagSelection = () => setCheckedBag(!checkedBag);
-
-    const handleTravelProtectionSelection = () => setTravelProtection(!travelProtection);
-
-    const handleNextStep = () => {
-        navigation.navigate('Summary', {
-            passengerInformation, selectedBaggage, checkedBag, travelProtection
+    const handleContinue = () => {
+        navigation.navigate('SeatInformation', {
+            flightData,
+            passengerInfo,
+            selectedBaggage
         });
     };
 
     return (
-        <ScrollView style={styles.container}>
-            <Text style={styles.title}>Baggage</Text>
+      <ScrollView style={styles.container}>
+          {/* Header */}
+          <View style={styles.header}>
+              <TouchableOpacity onPress={() => navigation.goBack()}>
+                  <Icon name="arrow-back" size={24} color="#000" />
+              </TouchableOpacity>
+              <Text style={styles.headerTitle}>Baggage Selection</Text>
+          </View>
 
-            {/* Cabin Bags Section */}
-            <View style={styles.optionContainer}>
-                <Text style={styles.optionTitle}>Cabin bags</Text>
-                <TouchableOpacity
-                    style={[styles.optionButton, selectedBaggage === 'cabin' && styles.selectedOption]}
-                    onPress={() => handleBaggageSelection('cabin')}
-                >
-                    <Text style={styles.optionText}>Personal item only</Text>
-                </TouchableOpacity>
-            </View>
+          {/* Progress Indicator */}
+          <View style={styles.progressContainer}>
+              <Icon name="person-circle-outline" size={32} color="#ccc" />
+              <Icon name="briefcase-outline" size={32} color="#00bdd6" />
+              <Icon name="car-outline" size={32} color="#ccc" />
+              <Icon name="card-outline" size={32} color="#ccc" />
+          </View>
 
-            {/* Checked Bags Section */}
-            <View style={styles.optionContainer}>
-                <Text style={styles.optionTitle}>Checked bags</Text>
-                <TouchableOpacity
-                    style={[styles.optionButton, selectedBaggage === 'checked' && styles.selectedOption]}
-                    onPress={() => handleBaggageSelection('checked')}
-                >
-                    <Text style={styles.optionText}>1 checked bag (Max weight 22.1 lbs) from $19.99</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    style={[styles.optionButton, selectedBaggage === 'no-checked' && styles.selectedOption]}
-                    onPress={() => handleBaggageSelection('no-checked')}
-                >
-                    <Text style={styles.optionText}>No checked bag $00.00</Text>
-                </TouchableOpacity>
-            </View>
+          <View style={styles.baggageContainer}>
+              <Text style={styles.sectionTitle}>Choose Your Baggage Allowance</Text>
 
-            {/* Travel Protection Section */}
-            <View style={styles.optionContainer}>
-                <Text style={styles.optionTitle}>Travel protection</Text>
+              {baggageOptions.map((baggage) => (
                 <TouchableOpacity
-                    style={[styles.optionButton, travelProtection && styles.selectedOption]}
-                    onPress={handleTravelProtectionSelection}
+                  key={baggage.id}
+                  style={[
+                      styles.baggageOption,
+                      selectedBaggage?.id === baggage.id && styles.selectedBaggage
+                  ]}
+                  onPress={() => setSelectedBaggage(baggage)}
                 >
-                    <Text style={styles.optionText}>1 checked bag (Max weight 22.1 lbs) from $19.99</Text>
+                    <View style={styles.baggageInfo}>
+                        <Text style={styles.weightText}>{baggage.weight}</Text>
+                        <Text style={styles.descriptionText}>{baggage.description}</Text>
+                    </View>
+                    <View style={styles.priceContainer}>
+                        <Text style={styles.priceText}>${baggage.price}</Text>
+                        {selectedBaggage?.id === baggage.id && (
+                          <Icon name="checkmark-circle" size={24} color="#00b2b2" />
+                        )}
+                    </View>
                 </TouchableOpacity>
-                <View style={styles.extraOptions}>
-                    <Text style={styles.extraOptionText}>Laboris exercitation Lorem anim pariatur</Text>
-                    <Text style={styles.extraOptionText}>Duis aute irure dolor in reprehenderit in voluptate</Text>
-                    <Text style={styles.extraOptionText}>Incididunt amet cupidatat elit enim amet labore</Text>
-                    <Text style={styles.extraOptionText}>Magna eu mollit veniam ipsum in dolore anim</Text>
-                </View>
-                <TouchableOpacity
-                    style={[styles.optionButton, !travelProtection && styles.selectedOption]}
-                    onPress={handleTravelProtectionSelection}
-                >
-                    <Text style={styles.optionText}>No insurance $00.00</Text>
-                </TouchableOpacity>
-            </View>
+              ))}
 
-            {/* Next Button */}
-            <View style={styles.footer}>
-                <TouchableOpacity style={styles.nextButton} onPress={handleNextStep}>
-                    <Text style={styles.nextButtonText}>Next</Text>
-                </TouchableOpacity>
-            </View>
-        </ScrollView>
+              <View style={styles.infoBox}>
+                  <Icon name="information-circle-outline" size={24} color="#666" />
+                  <Text style={styles.infoText}>
+                      All passengers are entitled to one piece of hand luggage (7kg max) free of charge
+                  </Text>
+              </View>
+          </View>
+
+          <TouchableOpacity
+            style={[
+                styles.continueButton,
+                !selectedBaggage && styles.disabledButton
+            ]}
+            onPress={handleContinue}
+            disabled={!selectedBaggage}
+          >
+              <Text style={styles.buttonText}>Continue</Text>
+              <Icon name="arrow-forward" size={24} color="#fff" />
+          </TouchableOpacity>
+      </ScrollView>
     );
 };
 
@@ -88,56 +90,106 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#fff',
-        padding: 16,
     },
-    title: {
-        fontSize: 24,
+    header: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 20,
+        backgroundColor: '#fff',
+        borderBottomWidth: 1,
+        borderBottomColor: '#e0e0e0',
+    },
+    headerTitle: {
+        fontSize: 20,
         fontWeight: 'bold',
-        marginBottom: 16,
+        marginLeft: 20,
     },
-    optionContainer: {
-        marginBottom: 24,
+    progressContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        alignItems: 'center',
+        padding: 20,
+        backgroundColor: '#fff',
+        borderBottomWidth: 1,
+        borderBottomColor: '#e0e0e0',
     },
-    optionTitle: {
-        fontSize: 16,
-        fontWeight: '700',
-        marginBottom: 12,
+    baggageContainer: {
+        padding: 20,
     },
-    optionButton: {
-        padding: 15,
-        backgroundColor: '#f9f9f9',
-        borderRadius: 8,
-        marginBottom: 10,
-    },
-    selectedOption: {
-        backgroundColor: '#00bdd6',
-    },
-    optionText: {
-        fontSize: 14,
+    sectionTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginBottom: 20,
         color: '#333',
     },
-    extraOptions: {
-        marginTop: 10,
+    baggageOption: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: 15,
+        borderWidth: 1,
+        borderColor: '#ddd',
+        borderRadius: 8,
+        marginBottom: 15,
     },
-    extraOptionText: {
-        fontSize: 12,
+    selectedBaggage: {
+        borderColor: '#00b2b2',
+        backgroundColor: '#f0ffff',
+    },
+    baggageInfo: {
+        flex: 1,
+    },
+    weightText: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#333',
+        marginBottom: 5,
+    },
+    descriptionText: {
+        fontSize: 14,
         color: '#666',
     },
-    footer: {
+    priceContainer: {
         flexDirection: 'row',
-        justifyContent: 'flex-end',
-        paddingTop: 16,
+        alignItems: 'center',
     },
-    nextButton: {
-        backgroundColor: '#00bdd6',
-        paddingVertical: 12,
-        paddingHorizontal: 24,
+    priceText: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#00b2b2',
+        marginRight: 10,
+    },
+    infoBox: {
+        flexDirection: 'row',
+        backgroundColor: '#f8f8f8',
+        padding: 15,
         borderRadius: 8,
+        marginTop: 20,
     },
-    nextButtonText: {
-        fontSize: 16,
+    infoText: {
+        flex: 1,
+        marginLeft: 10,
+        fontSize: 14,
+        color: '#666',
+    },
+    continueButton: {
+        flexDirection: 'row',
+        backgroundColor: '#00b2b2',
+        margin: 20,
+        padding: 15,
+        borderRadius: 8,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    disabledButton: {
+        backgroundColor: '#ccc',
+    },
+    buttonText: {
         color: '#fff',
+        fontSize: 16,
+        fontWeight: 'bold',
+        marginRight: 10,
     },
 });
 
-export default BaggageScreen;
+export default BaggageInformationScreen;

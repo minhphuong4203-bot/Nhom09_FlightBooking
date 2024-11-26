@@ -1,239 +1,264 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 
-const FlightDetails = ({ navigation, route }) => {
-    const flightData = route.params?.flightData ?? {};
-    const trip = flightData.trip || {};
-    const flights = Array.isArray(flightData.flights) ? flightData.flights : [];
-    const baggage = flightData.baggage || { included: '', extra: [] };
+const FlightDetailScreen = ({ navigation, route }) => {
+    const { flightData } = route.params;
 
-    const handleSelect = () => {
-        if (flightData) {
-            navigation.navigate('PassengerInformation', { flightData });
-        } else {
-            // Có thể hiển thị thông báo lỗi hoặc thông báo cho người dùng
-            alert('No flight data available.');
-        }
+    const handleContinue = () => {
+        navigation.navigate('PassengerInformation', { flightData });
     };
 
     return (
-        <ScrollView style={styles.container}>
-            {/* Header */}
-            <View style={styles.header}>
-                <TouchableOpacity onPress={() => navigation.goBack()}>
-                    <Icon name="arrow-back" size={24} color="#000" />
-                </TouchableOpacity>
-                <Text style={styles.headerTitle}>Flight details</Text>
-                <View style={styles.headerIcons}>
-                    <Icon name="heart-outline" size={24} color="#000" style={styles.iconSpacing} />
-                    <Icon name="share-outline" size={24} color="#000" />
-                </View>
-            </View>
+      <ScrollView style={styles.container}>
+          {/* Header */}
+          <View style={styles.header}>
+              <TouchableOpacity onPress={() => navigation.goBack()}>
+                  <Icon name="arrow-back" size={24} color="#000" />
+              </TouchableOpacity>
+              <Text style={styles.headerTitle}>Flight Details</Text>
+          </View>
 
-            {/* Trip Info */}
-            <View style={styles.tripInfo}>
-                <Text style={styles.tripTitle}>Your trip to {trip.destination || 'N/A'}</Text>
-                <Text style={styles.tripSubtitle}>from {trip.origin || 'N/A'}</Text>
-                <Text style={styles.dateText}>{trip.dates || 'N/A'}</Text>
-                <Text style={styles.detailsText}>{trip.travellers || 'N/A'}</Text>
-            </View>
+          {/* Flight Card */}
+          <View style={styles.flightCard}>
+              <View style={styles.airlineInfo}>
+                  <Image
+                    source={{ uri: flightData.airlineIcon }}
+                    style={styles.airlineIcon}
+                  />
+                  <Text style={styles.airlineName}>{flightData.airline}</Text>
+              </View>
 
-            {/* Flight Details */}
-            {flights.length > 0 ? (
-                flights.map((flight, index) => (
-                    <View key={index} style={styles.flightCard}>
-                        <View style={styles.flightSegment}>
-                            <Text style={styles.segmentTitle}>{flight.segment || 'N/A'}</Text>
-                            <Text style={styles.airlineInfo}>{flight.airline || 'N/A'}</Text>
-                            <Text style={styles.timeText}>{flight.time || 'N/A'}</Text>
-                            <Text style={styles.stopText}>{flight.stops || 'N/A'}</Text>
-                            {Array.isArray(flight.details) && flight.details.map((detail, idx) => (
-                                <Text key={idx} style={styles.infoText}>{detail || 'N/A'}</Text>
-                            ))}
-                        </View>
-                        <TouchableOpacity>
-                            <Text style={styles.moreInfoText}>More info</Text>
-                        </TouchableOpacity>
-                    </View>
-                ))
-            ) : (
-                <Text style={styles.noFlightsText}>No flight details available.</Text>
-            )}
+              <View style={styles.routeContainer}>
+                  <View style={styles.locationInfo}>
+                      <Text style={styles.cityCode}>{flightData.origin}</Text>
+                      <Text style={styles.time}>{flightData.departureTime}</Text>
+                  </View>
 
-            {/* Included Baggage */}
-            <View style={styles.baggageSection}>
-                <Text style={styles.sectionTitle}>Included baggage</Text>
-                <Text style={styles.infoText}>{baggage.included || 'N/A'}</Text>
-                <Text style={styles.includedText}>Included</Text>
-            </View>
+                  <View style={styles.flightPath}>
+                      <View style={styles.dottedLine} />
+                      <Icon name="airplane" size={24} color="#00b2b2" />
+                      <View style={styles.dottedLine} />
+                  </View>
 
-            {/* Extra Baggage */}
-            <View style={styles.baggageSection}>
-                <Text style={styles.sectionTitle}>Extra baggage</Text>
-                {Array.isArray(baggage.extra) && baggage.extra.map((item, idx) => (
-                    <Text key={idx} style={styles.extraBaggageText}>
-                        {item.type || 'N/A'} - {item.price || 'N/A'}
-                    </Text>
-                ))}
-            </View>
+                  <View style={styles.locationInfo}>
+                      <Text style={styles.cityCode}>{flightData.destination}</Text>
+                      <Text style={styles.time}>{flightData.arrivalTime}</Text>
+                  </View>
+              </View>
 
-            {/* Total Price and Select Button */}
-            <View style={styles.footer}>
-                <View>
-                    <Text style={styles.totalPrice}>${flightData.totalPrice || '0.00'}</Text>
-                    <Text style={styles.totalPriceText}>Total price</Text>
-                </View>
-                <TouchableOpacity style={styles.selectButton} onPress={handleSelect}>
-                    <Text style={styles.selectText}>Select</Text>
-                </TouchableOpacity>
-            </View>
-        </ScrollView>
+              <View style={styles.flightDetails}>
+                  <View style={styles.detailItem}>
+                      <Icon name="calendar-outline" size={20} color="#666" />
+                      <Text style={styles.detailText}>{flightData.date}</Text>
+                  </View>
+                  <View style={styles.detailItem}>
+                      <Icon name="time-outline" size={20} color="#666" />
+                      <Text style={styles.detailText}>{flightData.duration}</Text>
+                  </View>
+                  <View style={styles.detailItem}>
+                      <Icon name="briefcase-outline" size={20} color="#666" />
+                      <Text style={styles.detailText}>20kg baggage</Text>
+                  </View>
+              </View>
+          </View>
+
+          {/* Price Breakdown */}
+          <View style={styles.priceSection}>
+              <Text style={styles.sectionTitle}>Price Details</Text>
+              <View style={styles.priceRow}>
+                  <Text style={styles.priceLabel}>Base Fare</Text>
+                  <Text style={styles.priceValue}>${flightData.baseFare}</Text>
+              </View>
+              <View style={styles.priceRow}>
+                  <Text style={styles.priceLabel}>Taxes & Fees</Text>
+                  <Text style={styles.priceValue}>${flightData.taxes}</Text>
+              </View>
+              <View style={styles.totalRow}>
+                  <Text style={styles.totalLabel}>Total</Text>
+                  <Text style={styles.totalValue}>${flightData.totalPrice}</Text>
+              </View>
+          </View>
+
+          {/* Flight Policies */}
+          <View style={styles.policySection}>
+              <Text style={styles.sectionTitle}>Flight Policies</Text>
+              <View style={styles.policyItem}>
+                  <Icon name="refresh-outline" size={20} color="#666" />
+                  <Text style={styles.policyText}>Free cancellation within 24 hours</Text>
+              </View>
+              <View style={styles.policyItem}>
+                  <Icon name="calendar-outline" size={20} color="#666" />
+                  <Text style={styles.policyText}>Date change fees apply</Text>
+              </View>
+          </View>
+
+          <TouchableOpacity style={styles.continueButton} onPress={handleContinue}>
+              <Text style={styles.buttonText}>Continue Booking</Text>
+              <Icon name="arrow-forward" size={24} color="#fff" />
+          </TouchableOpacity>
+      </ScrollView>
     );
 };
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#f9f9f9',
+        backgroundColor: '#f8f9fa',
     },
     header: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
         alignItems: 'center',
-        padding: 16,
+        padding: 20,
+        backgroundColor: '#fff',
         borderBottomWidth: 1,
-        borderBottomColor: '#ddd',
+        borderBottomColor: '#e0e0e0',
     },
     headerTitle: {
-        fontSize: 18,
-        fontWeight: 'bold',
-    },
-    headerIcons: {
-        flexDirection: 'row',
-    },
-    iconSpacing: {
-        marginRight: 16,
-    },
-    tripInfo: {
-        padding: 16,
-        borderBottomWidth: 1,
-        borderBottomColor: '#ddd',
-    },
-    tripTitle: {
         fontSize: 20,
         fontWeight: 'bold',
-    },
-    tripSubtitle: {
-        fontSize: 16,
-        color: '#666',
-        marginVertical: 4,
-    },
-    dateText: {
-        fontSize: 16,
-        fontWeight: 'bold',
-        marginVertical: 8,
-    },
-    detailsText: {
-        fontSize: 14,
-        color: '#666',
+        marginLeft: 20,
     },
     flightCard: {
         backgroundColor: '#fff',
+        margin: 16,
+        borderRadius: 12,
         padding: 16,
-        marginVertical: 8,
-        marginHorizontal: 16,
-        borderRadius: 8,
-        shadowColor: '#000',
-        shadowOpacity: 0.1,
-        shadowRadius: 5,
         elevation: 3,
-    },
-    flightSegment: {
-        marginBottom: 8,
-    },
-    segmentTitle: {
-        fontSize: 16,
-        fontWeight: 'bold',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
     },
     airlineInfo: {
-        fontSize: 14,
-        color: '#666',
-        marginVertical: 4,
-    },
-    timeText: {
-        fontSize: 16,
-        fontWeight: '600',
-        marginVertical: 4,
-    },
-    stopText: {
-        fontSize: 14,
-        color: '#666',
-        marginVertical: 4,
-    },
-    infoText: {
-        fontSize: 12,
-        color: '#999',
-        marginVertical: 2,
-    },
-    moreInfoText: {
-        color: '#00bdd6',
-        fontSize: 14,
-        fontWeight: 'bold',
-    },
-    baggageSection: {
-        padding: 16,
-        borderBottomWidth: 1,
-        borderBottomColor: '#ddd',
-    },
-    sectionTitle: {
-        fontSize: 16,
-        fontWeight: 'bold',
-        marginBottom: 8,
-    },
-    includedText: {
-        fontSize: 14,
-        color: '#00bdd6',
-    },
-    extraBaggageText: {
-        fontSize: 14,
-        color: '#333',
-        marginVertical: 4,
-    },
-    footer: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
         alignItems: 'center',
-        padding: 16,
-        borderTopWidth: 1,
-        borderTopColor: '#ddd',
-        backgroundColor: '#fff',
+        marginBottom: 20,
     },
-    totalPrice: {
+    airlineIcon: {
+        width: 40,
+        height: 40,
+        marginRight: 12,
+    },
+    airlineName: {
         fontSize: 18,
         fontWeight: 'bold',
     },
-    totalPriceText: {
-        fontSize: 14,
+    routeContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 20,
+    },
+    locationInfo: {
+        alignItems: 'center',
+    },
+    cityCode: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        marginBottom: 4,
+    },
+    time: {
+        fontSize: 16,
         color: '#666',
     },
-    selectButton: {
-        backgroundColor: '#00bdd6',
-        borderRadius: 8,
-        paddingVertical: 12,
-        paddingHorizontal: 24,
+    flightPath: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 10,
     },
-    selectText: {
-        color: '#fff',
+    dottedLine: {
+        flex: 1,
+        height: 1,
+        borderStyle: 'dotted',
+        borderWidth: 1,
+        borderColor: '#ccc',
+    },
+    flightDetails: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        borderTopWidth: 1,
+        borderTopColor: '#eee',
+        paddingTop: 16,
+    },
+    detailItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    detailText: {
+        marginLeft: 8,
+        color: '#666',
+    },
+    priceSection: {
+        backgroundColor: '#fff',
+        margin: 16,
+        padding: 16,
+        borderRadius: 12,
+    },
+    sectionTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginBottom: 16,
+    },
+    priceRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginBottom: 12,
+    },
+    priceLabel: {
+        color: '#666',
+    },
+    priceValue: {
+        fontWeight: '500',
+    },
+    totalRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        borderTopWidth: 1,
+        borderTopColor: '#eee',
+        paddingTop: 12,
+        marginTop: 12,
+    },
+    totalLabel: {
         fontSize: 16,
         fontWeight: 'bold',
     },
-    noFlightsText: {
-        textAlign: 'center',
+    totalValue: {
         fontSize: 16,
-        color: '#999',
-        marginVertical: 20,
+        fontWeight: 'bold',
+        color: '#00b2b2',
+    },
+    policySection: {
+        backgroundColor: '#fff',
+        margin: 16,
+        padding: 16,
+        borderRadius: 12,
+    },
+    policyItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 12,
+    },
+    policyText: {
+        marginLeft: 12,
+        color: '#666',
+    },
+    continueButton: {
+        flexDirection: 'row',
+        backgroundColor: '#00b2b2',
+        margin: 16,
+        padding: 15,
+        borderRadius: 8,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    buttonText: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: 'bold',
+        marginRight: 10,
     },
 });
 
-export default FlightDetails;
+export default FlightDetailScreen;
